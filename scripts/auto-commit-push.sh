@@ -45,6 +45,15 @@ git add .
 echo "Committing changes with message: $COMMIT_MESSAGE"
 git commit -m "$COMMIT_MESSAGE"
 
+# Pull the latest changes from remote
+echo "Pulling latest changes from remote..."
+git pull --rebase origin "$(git rev-parse --abbrev-ref HEAD)" || {
+    echo "Warning: Pull failed. You may need to resolve conflicts manually."
+    echo "After resolving conflicts, run: git rebase --continue"
+    echo "Then push your changes: git push origin $(git rev-parse --abbrev-ref HEAD)"
+    exit 1
+}
+
 # Push to remote
 echo "Pushing to remote origin..."
 git push origin "$(git rev-parse --abbrev-ref HEAD)"
