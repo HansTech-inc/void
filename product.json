@@ -1,7 +1,7 @@
 {
 	"nameShort": "DevForge IDE",
 	"nameLong": "DevForge IDE",
-	"voidVersion": "1.2.8",
+	"devForgeVersion": "1.2.8",
 	"applicationName": "devforge",
 	"dataFolderName": ".devforge-ide",
 	"win32MutexName": "devforgeeditor",
@@ -37,7 +37,7 @@
 	},
 	"builtInExtensions": [],
 	"linkProtectionTrustedDomains": [
-	"https://voideditor.com",
+	"https://voideditor.com/",
 	"https://voideditor.dev"
 	]
 }

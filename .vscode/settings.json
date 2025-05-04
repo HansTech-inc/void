@@ -178,5 +178,6 @@
 		"*": "error",
 		"ts": "warning",
 		"eslint": "warning"
-	}
+	},
+	"bitoAI.codeCompletion.enableAutoCompletion": false
 }
