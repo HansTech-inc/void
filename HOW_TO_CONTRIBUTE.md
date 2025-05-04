@@ -1,27 +1,27 @@
-# Contributing to Void
+# Contributing to DevForge IDE
 ### Welcome! 👋
-This is the official guide on how to contribute to Void. We want to make it as easy as possible to contribute, so if you have any questions or comments, reach out via email or discord!
+This is the official guide on how to contribute to DevForge IDE. We want to make it as easy as possible to contribute, so if you have any questions or comments, reach out via email or discord!
 
 There are a few ways to contribute:
 
-- 💫 Complete items on the [Roadmap](https://github.com/orgs/voideditor/projects/2).
+- 💫 Complete items on the [Roadmap](https://github.com/orgs/HansTech-inc/projects/2).
 - 💡 Make suggestions in our [Discord](https://discord.gg/RSNjgaugJs).
-- 🪴 Start new Issues - see [Issues](https://github.com/voideditor/void/issues).
+- 🪴 Start new Issues - see [Issues](https://github.com/HansTech-inc/devforge/issues).
 
 
 
 ### Codebase Guide
 
-We [highly recommend reading this](https://github.com/voideditor/void/blob/main/VOID_CODEBASE_GUIDE.md) guide that we put together on Void's sourcecode if you'd like to add new features.
+We [highly recommend reading this](https://github.com/HansTech-inc/devforge/blob/main/DEVFORGE_CODEBASE_GUIDE.md) guide that we put together on DevForge IDE's sourcecode if you'd like to add new features.
 
 The repo is not as intimidating as it first seems if you read the guide!
 
-Most of Void's code lives in the folder `src/vs/workbench/contrib/void/`.
+Most of DevForge IDE's code lives in the folder `src/vs/workbench/contrib/devforge/`.
 
 
 
 
-## Building Void
+## Building DevForge IDE
 
 ### a. Mac - Build Prerequisites
 
@@ -50,16 +50,16 @@ First, run `npm install -g node-gyp`. Then:
 - Red Hat (Fedora, etc): `sudo dnf install @development-tools gcc gcc-c++ make libsecret-devel krb5-devel libX11-devel libxkbfile-devel`.
 - Others: see [How to Contribute](https://github.com/microsoft/vscode/wiki/How-to-Contribute).
 
-### d. Building Void from inside VSCode
+### d. Building DevForge IDE from inside VSCode
 
-1. `git clone https://github.com/voideditor/void` to clone the repo.
+1. `git clone https://github.com/HansTech-inc/devforge` to clone the repo.
 2. `npm install` to install all dependencies.
-3. To build Void, open VSCode. Then:
+3. To build DevForge IDE, open VSCode. Then:
    - Windows: Press <kbd>Ctrl+Shift+B</kbd>.
    - Mac: Press <kbd>Cmd+Shift+B</kbd>.
    - Linux: Press <kbd>Ctrl+Shift+B</kbd>.
    - This step can take ~5 min. The build is done when you see two check marks (one of the items will continue spinning indefinitely - it compiles our React code).
-4. To run Void:
+4. To run DevForge IDE:
    - Windows: `./scripts/code.bat`.
    - Mac: `./scripts/code.sh`.
    - Linux: `./scripts/code.sh`.
@@ -70,9 +70,9 @@ First, run `npm install -g node-gyp`. Then:
 
 If you get any errors, scroll down for common fixes.
 
-#### Building Void from Terminal
+#### Building DevForge IDE from Terminal
 
-To build Void from the terminal instead of from inside VSCode, follow the steps above, but instead of pressing <kbd>Cmd+Shift+B</kbd>, run `npm run watch`. The build is done when you see something like this:
+To build DevForge IDE from the terminal instead of from inside VSCode, follow the steps above, but instead of pressing <kbd>Cmd+Shift+B</kbd>, run `npm run watch`. The build is done when you see something like this:
 
 ```
 [watch-extensions] [00:37:39] Finished compilation extensions with 0 errors after 19303 ms
@@ -86,19 +86,19 @@ To build Void from the terminal instead of from inside VSCode, follow the steps 
 
 - Make sure you followed the prerequisite steps above.
 - Make sure you have Node version `20.18.2` (the version in `.nvmrc`)!
-- Make sure that the path to your Void folder does not have any spaces in it.
+- Make sure that the path to your DevForge IDE folder does not have any spaces in it.
 - If you get `"TypeError: Failed to fetch dynamically imported module"`, make sure all imports end with `.js`.
 - If you get an error with React, try running `NODE_OPTIONS="--max-old-space-size=8192" npm run buildreact`.
 - If you see missing styles, wait a few seconds and then reload.
 - If you get errors like `npm error libtool:   error: unrecognised option: '-static'`,  when running ./scripts/code.sh, make sure you have GNU libtool instead of BSD libtool (BSD is the default in macos)
 - If you get erorrs like `The SUID sandbox helper binary was found, but is not configured correctly` when running ./scripts/code.sh, run
 `sudo chown root:root .build/electron/chrome-sandbox && sudo chmod 4755 .build/electron/chrome-sandbox` and then run `./scripts/code.sh` again.
-- If you have any other questions, feel free to [submit an issue](https://github.com/voideditor/void/issues/new). You can also refer to VSCode's complete [How to Contribute](https://github.com/microsoft/vscode/wiki/How-to-Contribute) page.
+- If you have any other questions, feel free to [submit an issue](https://github.com/HansTech-inc/devforge/issues/new). You can also refer to VSCode's complete [How to Contribute](https://github.com/microsoft/vscode/wiki/How-to-Contribute) page.
 
 
 ## Packaging
 
-We don't usually recommend packaging. Instead, you should probably just build. If you're sure you want to package Void into an executable app, make sure you've built first, then run one of the following commands. This will create a folder named `VSCode-darwin-arm64` or similar outside of the void/ repo (see below). Be patient - packaging can take ~25 minutes.
+We don't usually recommend packaging. Instead, you should probably just build. If you're sure you want to package DevForge IDE into an executable app, make sure you've built first, then run one of the following commands. This will create a folder named `VSCode-darwin-arm64` or similar outside of the devforge/ repo (see below). Be patient - packaging can take ~25 minutes.
 
 
 ### Mac
@@ -116,15 +116,15 @@ We don't usually recommend packaging. Instead, you should probably just build. I
 
 ### Output
 
-This will generate a folder outside of `void/`:
+This will generate a folder outside of `devforge/`:
 ```bash
 workspace/
-├── void/   # Your Void fork
+├── devforge/   # Your DevForge IDE fork
 └── VSCode-darwin-arm64/ # Generated output
 ```
 
 ### Distributing
-Void's maintainers distribute Void on our website and in releases. Our build pipeline is a fork of VSCodium, and it works by running GitHub Actions which create the downloadables. The build repo with more instructions lives [here](https://github.com/voideditor/void-builder).
+DevForge IDE's maintainers distribute DevForge IDE on our website and in releases. Our build pipeline is a fork of VSCodium, and it works by running GitHub Actions which create the downloadables. The build repo with more instructions lives [here](https://github.com/HansTech-inc/devforge-builder).
 
 ## Pull Request Guidelines
 
@@ -140,20 +140,20 @@ Void's maintainers distribute Void on our website and in releases. Our build pip
 <!--
 # Relevant files
 
-We keep track of all the files we've changed with Void so it's easy to rebase:
+We keep track of all the files we've changed with DevForge IDE so it's easy to rebase:
 
 Edit: far too many changes to track... this is old
 
 - README.md
 - CONTRIBUTING.md
-- VOID_USEFUL_LINKS.md
+- DEVFORGE_CODEBASE_GUIDE.md
 - product.json
 - package.json
 
 - src/vs/workbench/api/common/{extHost.api.impl.ts | extHostApiCommands.ts}
 - src/vs/workbench/workbench.common.main.ts
-- src/vs/workbench/contrib/void/\*
-- extensions/void/\*
+- src/vs/workbench/contrib/devforge/\*
+- extensions/devforge/\*
 
 - .github/\*
 - .vscode/settings/\*
