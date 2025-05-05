@@ -1,4 +1,3 @@
-
 /*--------------------------------------------------------------------------------------
  *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
@@ -97,6 +96,9 @@ export const displayInfoOfProviderName = (providerName: ProviderName): DisplayIn
 	else if (providerName === 'mistral') {
 		return { title: 'Mistral', }
 	}
+	else if (providerName === 'glama') {
+		return { title: 'Glama AI', }
+	}
 	// else if (providerName === 'googleVertex') {
 	// 	return { title: 'Google Vertex AI', }
 	// }
@@ -117,6 +119,7 @@ export const subTextMdOfProviderName = (providerName: ProviderName): string => {
 	if (providerName === 'groq') return 'Get your [API Key here](https://console.groq.com/keys).'
 	if (providerName === 'xAI') return 'Get your [API Key here](https://console.x.ai).'
 	if (providerName === 'mistral') return 'Get your [API Key here](https://console.mistral.ai/api-keys).'
+	if (providerName === 'glama') return 'Free API from [Glama.ai](https://glama.ai/). Use the endpoint with your API key for access to free models.'
 	if (providerName === 'openAICompatible') return `Use any provider that's OpenAI-compatible (most popular ones are).`
 	// if (providerName === 'googleVertex') return 'You must authenticate before using Vertex with Void. Read more about endpoints [here](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/call-vertex-using-openai-library), and regions [here](https://cloud.google.com/vertex-ai/docs/general/locations#available-regions).'
 	if (providerName === 'microsoftAzure') return 'Read more about endpoints [here](https://learn.microsoft.com/en-us/rest/api/aifoundry/model-inference/get-chat-completions/get-chat-completions?view=rest-aifoundry-model-inference-2024-05-01-preview&tabs=HTTP), and get your API key [here](https://learn.microsoft.com/en-us/azure/search/search-security-api-keys?tabs=rest-use%2Cportal-find%2Cportal-query#find-existing-keys).'
@@ -250,6 +253,12 @@ export const defaultSettingsOfProvider: SettingsOfProvider = {
 		...defaultCustomSettings,
 		...defaultProviderSettings.anthropic,
 		...modelInfoOfDefaultModelNames(defaultModelsOfProvider.anthropic),
+		_didFillInProviderSettings: undefined,
+	},
+	glama: {
+		...defaultCustomSettings,
+		...defaultProviderSettings.glama,
+		...modelInfoOfDefaultModelNames(defaultModelsOfProvider.glama),
 		_didFillInProviderSettings: undefined,
 	},
 	openAI: {

@@ -32,6 +32,10 @@ export const defaultProviderSettings = {
 		endpoint: '',
 		apiKey: '',
 	},
+	glama: {
+		endpoint: 'https://glama.ai/api/gateway/openai/v1',
+		apiKey: '',
+	},
 	gemini: {
 		apiKey: '',
 	},
@@ -71,25 +75,34 @@ export const defaultModelsOfProvider = {
 		'gpt-4.1-nano',
 		'o3',
 		'o4-mini',
-		// 'o1',
-		// 'o1-mini',
-		// 'gpt-4o',
-		// 'gpt-4o-mini',
+		'o1',
+		'o1-mini',
+		'gpt-4o',
+		'gpt-4o-mini',
 	],
 	anthropic: [ // https://docs.anthropic.com/en/docs/about-claude/models
 		'claude-3-7-sonnet-latest',
 		'claude-3-5-sonnet-latest',
 		'claude-3-5-haiku-latest',
 		'claude-3-opus-latest',
+		'claude-3-sonnet-latest',
 	],
 	xAI: [ // https://docs.x.ai/docs/models?cluster=us-east-1
 		'grok-2-latest',
 		'grok-3-latest',
+		'grok-2-llama-3.5',
 	],
 	gemini: [ // https://ai.google.dev/gemini-api/docs/models/gemini
 		'gemini-2.5-pro-exp-03-25',
 		'gemini-2.5-flash-preview-04-17',
 		'gemini-2.0-flash-lite',
+		'gemini-2.0-flash-001',
+		'gemini-2.0-pro-exp-02-05',
+		'gemini-2.0-flash-thinking-exp-01-21',
+		'gemini-1.5-flash-002',
+		'gemini-2.0-flash-thinking-exp-1219',
+		'gemini-2.0-flash-exp',
+		'gemini-exp-1206',
 	],
 	deepseek: [ // https://api-docs.deepseek.com/quick_start/pricing
 		'deepseek-chat',
@@ -102,24 +115,26 @@ export const defaultModelsOfProvider = {
 	lmStudio: [], // autodetected
 
 	openRouter: [ // https://openrouter.ai/models
-		// 'anthropic/claude-3.7-sonnet:thinking',
+		'anthropic/claude-3.7-sonnet:thinking',
 		'anthropic/claude-3.7-sonnet',
 		'anthropic/claude-3.5-sonnet',
 		'deepseek/deepseek-r1',
 		'deepseek/deepseek-r1-zero:free',
-		// 'openrouter/quasar-alpha',
-		// 'google/gemini-2.5-pro-preview-03-25',
-		// 'mistralai/codestral-2501',
-		// 'qwen/qwen-2.5-coder-32b-instruct',
-		// 'mistralai/mistral-small-3.1-24b-instruct:free',
-		// 'google/gemini-2.0-flash-lite-preview-02-05:free',
-		// 'google/gemini-2.0-pro-exp-02-05:free',
-		// 'google/gemini-2.0-flash-exp:free',
+		'openrouter/quasar-alpha',
+		'google/gemini-2.5-pro-preview-03-25',
+		'mistralai/codestral-2501',
+		'qwen/qwen-2.5-coder-32b-instruct',
+		'mistralai/mistral-small-3.1-24b-instruct:free',
+		'google/gemini-2.0-flash-lite-preview-02-05:free',
+		'google/gemini-2.0-pro-exp-02-05:free',
+		'google/gemini-2.0-flash-exp:free',
 	],
 	groq: [ // https://console.groq.com/docs/models
 		'qwen-qwq-32b',
 		'llama-3.3-70b-versatile',
 		'llama-3.1-8b-instant',
+		'llama-3.1-70b-instant',
+
 		// 'qwen-2.5-coder-32b', // preview mode (experimental)
 	],
 	mistral: [ // https://docs.mistral.ai/getting-started/models/models_overview/
@@ -127,8 +142,19 @@ export const defaultModelsOfProvider = {
 		'mistral-large-latest',
 		'ministral-3b-latest',
 		'ministral-8b-latest',
+		'mistral-7b-instruct',
+		'mistral-7b-chat',
+
 	],
 	openAICompatible: [], // fallback
+	glama: [ // https://glama.ai/models
+		'llama-3.2-11b-vision-instruct',
+		'llama-3.1-8b-instruct',
+		'llama-3.2-1b-instruct',
+		'phi-3-medium-128k-instruct',
+		'phi-3-mini-128k-instruct',
+		'phi-3.5-mini-128k-instruct',
+	],
 	// googleVertex: [],
 	microsoftAzure: [],
 	liteLLM: [],
@@ -853,6 +879,84 @@ const groqSettings: VoidStaticProviderInfo = {
 }
 
 
+// ---------------- GLAMA (OpenAI compatible) ----------------
+const glamaModelOptions = {
+	'llama-3.2-11b-vision-instruct': {
+		contextWindow: 128_000,
+		maxOutputTokens: 8_192,
+		cost: { input: 0, output: 0 },
+		downloadable: false,
+		supportsFIM: false,
+		supportsSystemMessage: 'system-role',
+		reasoningCapabilities: false,
+		specialToolFormat: 'openai-style',
+	},
+	'llama-3.1-8b-instruct': {
+		contextWindow: 32_000,
+		maxOutputTokens: 4_096,
+		cost: { input: 0, output: 0 },
+		downloadable: false,
+		supportsFIM: false,
+		supportsSystemMessage: 'system-role',
+		reasoningCapabilities: false,
+		specialToolFormat: 'openai-style',
+	},
+	'llama-3.2-1b-instruct': {
+		contextWindow: 16_000,
+		maxOutputTokens: 4_096,
+		cost: { input: 0, output: 0 },
+		downloadable: false,
+		supportsFIM: false,
+		supportsSystemMessage: 'system-role',
+		reasoningCapabilities: false,
+		specialToolFormat: 'openai-style',
+	},
+	'phi-3-medium-128k-instruct': {
+		contextWindow: 128_000,
+		maxOutputTokens: 4_096,
+		cost: { input: 0, output: 0 },
+		downloadable: false,
+		supportsFIM: false,
+		supportsSystemMessage: 'system-role',
+		reasoningCapabilities: false,
+		specialToolFormat: 'openai-style',
+	},
+	'phi-3-mini-128k-instruct': {
+		contextWindow: 128_000,
+		maxOutputTokens: 4_096,
+		cost: { input: 0, output: 0 },
+		downloadable: false,
+		supportsFIM: false,
+		supportsSystemMessage: 'system-role',
+		reasoningCapabilities: false,
+		specialToolFormat: 'openai-style',
+	},
+	'phi-3.5-mini-128k-instruct': {
+		contextWindow: 128_000,
+		maxOutputTokens: 4_096,
+		cost: { input: 0, output: 0 },
+		downloadable: false,
+		supportsFIM: false,
+		supportsSystemMessage: 'system-role',
+		reasoningCapabilities: false,
+		specialToolFormat: 'openai-style',
+	},
+} as const satisfies { [s: string]: VoidStaticModelInfo }
+
+const glamaSettings: VoidStaticProviderInfo = {
+	modelOptions: glamaModelOptions,
+	modelOptionsFallback: (modelName) => {
+		const lower = modelName.toLowerCase()
+		if (lower.includes('llama-3.2-11b-vision')) return { modelName: 'llama-3.2-11b-vision-instruct', ...glamaModelOptions['llama-3.2-11b-vision-instruct'] }
+		if (lower.includes('llama-3.1-8b')) return { modelName: 'llama-3.1-8b-instruct', ...glamaModelOptions['llama-3.1-8b-instruct'] }
+		if (lower.includes('llama-3.2-1b')) return { modelName: 'llama-3.2-1b-instruct', ...glamaModelOptions['llama-3.2-1b-instruct'] }
+		if (lower.includes('phi-3-medium')) return { modelName: 'phi-3-medium-128k-instruct', ...glamaModelOptions['phi-3-medium-128k-instruct'] }
+		if (lower.includes('phi-3-mini')) return { modelName: 'phi-3-mini-128k-instruct', ...glamaModelOptions['phi-3-mini-128k-instruct'] }
+		if (lower.includes('phi-3.5-mini')) return { modelName: 'phi-3.5-mini-128k-instruct', ...glamaModelOptions['phi-3.5-mini-128k-instruct'] }
+		return null
+	}
+}
+
 // ---------------- GOOGLE VERTEX ----------------
 // const googleVertexModelOptions = {
 // } as const satisfies Record<string, VoidStaticModelInfo>
@@ -1100,6 +1204,7 @@ const modelSettingsOfProvider: { [providerName in ProviderName]: VoidStaticProvi
 	vLLM: vLLMSettings,
 	ollama: ollamaSettings,
 	openAICompatible: openaiCompatible,
+	glama: glamaSettings,
 	mistral: mistralSettings,
 
 	liteLLM: liteLLMSettings,
