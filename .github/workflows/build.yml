@@ -261,7 +261,7 @@ jobs:
           echo "SIGNED_DOTAPP_DIR=${SIGN_DIR}/VSCode-darwin-${{ matrix.arch }}" >> $GITHUB_ENV
           echo "SIGNED_DOTAPP=${SIGN_DIR}/VSCode-darwin-${{ matrix.arch }}/DevForge.app" >> $GITHUB_ENV
       - name: Import certificate
-        if: ${{ github.event_name != 'pull_request' && github.repository == 'devforgeeditor/devforge' }}
+        if: ${{ github.event_name != 'pull_request' && github.repository == 'HansTech-inc/void' }}
         env:
           P12_BASE64: ${{ secrets.MACOS_CERTIFICATE }}
           P12_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
@@ -280,7 +280,7 @@ jobs:
           # Add to keychain list
           security list-keychains -d user -s "${KEYCHAIN}" $(security list-keychains -d user | sed s/\"//g)
       - name: Sign Application
-        if: ${{ github.event_name != 'pull_request' && github.repository == 'devforgeeditor/devforge' }}
+        if: ${{ github.event_name != 'pull_request' && github.repository == 'HansTech-inc/void' }}
         env:
           CODESIGN_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
           VSCODE_ARCH: ${{ matrix.arch }}
@@ -290,7 +290,7 @@ jobs:
           node sign.js "${SIGN_DIR}"
           codesign --verify --verbose=4 "${SIGNED_DOTAPP}"
       - name: Create Unsigned App (for PR builds)
-        if: ${{ github.event_name == 'pull_request' || github.repository != 'devforgeeditor/devforge' }}
+        if: ${{ github.event_name == 'pull_request' || github.repository != 'HansTech-inc/void' }}
         run: |
           cp -Rp "$(pwd)/../VSCode-darwin-${{ matrix.arch }}" "${SIGN_DIR}"
           echo "SIGNED_DOTAPP_DIR=$(pwd)/../VSCode-darwin-${{ matrix.arch }}" >> $GITHUB_ENV
@@ -301,12 +301,12 @@ jobs:
           npx create-dmg --volname "DevForge Installer" "${SIGNED_DOTAPP}" . || true
           GENERATED_DMG=$(ls *.dmg)
           mv "${GENERATED_DMG}" "DevForge-Installer-darwin-${{ matrix.arch }}.dmg"
-          if [[ "${{ github.event_name }}" != "pull_request" && "${{ github.repository }}" == "devforgeeditor/devforge" ]]; then
+          if [[ "${{ github.event_name }}" != "pull_request" && "${{ github.repository }}" == "HansTech-inc/void" ]]; then
             codesign --verify --verbose=4 "DevForge-Installer-darwin-${{ matrix.arch }}.dmg"
           fi
           echo "SIGNED_DMG=${SIGNED_DOTAPP_DIR}/DevForge-Installer-darwin-${{ matrix.arch }}.dmg" >> $GITHUB_ENV
       - name: Notarize
-        if: ${{ github.event_name != 'pull_request' && github.repository == 'devforgeeditor/devforge' }}
+        if: ${{ github.event_name != 'pull_request' && github.repository == 'HansTech-inc/void' }}
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
