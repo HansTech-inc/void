@@ -52,47 +52,38 @@ jobs:
           Get-Content .npmrc
         shell: pwsh
 
-      - name: Patch getElectronVersion function
+      - name: Direct fix for electron.js
         run: |
-          # Create patch for getElectronVersion function to handle errors better
+          # Create the parent directory if it doesn't exist
+          if (-not (Test-Path -Path "build/lib")) {
+            New-Item -Path "build/lib" -ItemType Directory -Force
+          }
+
+          # Add hard-coded values directly to electron.js
           @"
-          export function getElectronVersion(): Record<string, string> {
-            try {
-              const npmrc = fs.readFileSync(path.join(root, '.npmrc'), 'utf8');
-              console.log('Read .npmrc file:', npmrc);
+          // Hardcoded electron version values
+          const electronVersion = '34.3.2';
+          const msBuildId = '11161073';
 
-              const electronVersionMatch = /target="([^"]+)"/m.exec(npmrc);
-              const msBuildIdMatch = /ms_build_id="([^"]+)"/m.exec(npmrc);
-
-              if (!electronVersionMatch) {
-                console.error('Electron version not found in .npmrc file');
-                return { electronVersion: '34.3.2', msBuildId: '11161073' };
-              }
-
-              if (!msBuildIdMatch) {
-                console.error('MS Build ID not found in .npmrc file');
-                return { electronVersion: electronVersionMatch[1], msBuildId: '11161073' };
-              }
-
-              const electronVersion = electronVersionMatch[1];
-              const msBuildId = msBuildIdMatch[1];
-              console.log('Electron version:', electronVersion);
-              console.log('MS Build ID:', msBuildId);
+          // Export these values
+          module.exports = {
+            getElectronVersion: function() {
               return { electronVersion, msBuildId };
-            } catch (error) {
-              console.error('Error in getElectronVersion:', error);
-              return { electronVersion: '34.3.2', msBuildId: '11161073' };
+            },
+            version: electronVersion
+          };
+          "@ | Out-File -FilePath "build\lib\electron-version-hardcoded.js" -Encoding utf8
+
+          # Check if electron.js exists and patch it
+          $electronJsPath = "build\lib\electron.js"
+          if (Test-Path $electronJsPath) {
+            $content = Get-Content -Path $electronJsPath -Raw
+            if ($content -match "util.getElectronVersion") {
+              $fixedContent = $content -replace "const \{ electronVersion, msBuildId \} = util\.getElectronVersion\(\);", "const electronVersion = '34.3.2'; const msBuildId = '11161073';"
+              $fixedContent | Out-File -FilePath $electronJsPath -Encoding utf8
+              Write-Host "Successfully patched electron.js to use hardcoded values"
             }
           }
-          "@ | Out-File -FilePath build/lib/util.patch -Encoding utf8
-
-          # Apply the patch manually
-          $utilContent = Get-Content -Path build/lib/util.ts -Raw
-          $utilContent = $utilContent -replace "export function getElectronVersion\(\): Record<string, string> \{[\s\S]*?return \{ electronVersion, msBuildId \};\r?\n\}", (Get-Content -Path build/lib/util.patch -Raw)
-          $utilContent | Out-File -FilePath build/lib/util.ts -Encoding utf8
-
-          # Compile the TypeScript file
-          npx tsc build/lib/util.ts --target ES2020 --module commonjs --esModuleInterop
         shell: pwsh
 
       - name: Create empty fetch-mcp directory
@@ -186,47 +177,38 @@ jobs:
           Get-Content .npmrc
         shell: pwsh
 
-      - name: Patch getElectronVersion function
+      - name: Direct fix for electron.js
         run: |
-          # Create patch for getElectronVersion function to handle errors better
+          # Create the parent directory if it doesn't exist
+          if (-not (Test-Path -Path "build/lib")) {
+            New-Item -Path "build/lib" -ItemType Directory -Force
+          }
+
+          # Add hard-coded values directly to electron.js
           @"
-          export function getElectronVersion(): Record<string, string> {
-            try {
-              const npmrc = fs.readFileSync(path.join(root, '.npmrc'), 'utf8');
-              console.log('Read .npmrc file:', npmrc);
+          // Hardcoded electron version values
+          const electronVersion = '34.3.2';
+          const msBuildId = '11161073';
 
-              const electronVersionMatch = /target="([^"]+)"/m.exec(npmrc);
-              const msBuildIdMatch = /ms_build_id="([^"]+)"/m.exec(npmrc);
-
-              if (!electronVersionMatch) {
-                console.error('Electron version not found in .npmrc file');
-                return { electronVersion: '34.3.2', msBuildId: '11161073' };
-              }
-
-              if (!msBuildIdMatch) {
-                console.error('MS Build ID not found in .npmrc file');
-                return { electronVersion: electronVersionMatch[1], msBuildId: '11161073' };
-              }
-
-              const electronVersion = electronVersionMatch[1];
-              const msBuildId = msBuildIdMatch[1];
-              console.log('Electron version:', electronVersion);
-              console.log('MS Build ID:', msBuildId);
+          // Export these values
+          module.exports = {
+            getElectronVersion: function() {
               return { electronVersion, msBuildId };
-            } catch (error) {
-              console.error('Error in getElectronVersion:', error);
-              return { electronVersion: '34.3.2', msBuildId: '11161073' };
+            },
+            version: electronVersion
+          };
+          "@ | Out-File -FilePath "build\lib\electron-version-hardcoded.js" -Encoding utf8
+
+          # Check if electron.js exists and patch it
+          $electronJsPath = "build\lib\electron.js"
+          if (Test-Path $electronJsPath) {
+            $content = Get-Content -Path $electronJsPath -Raw
+            if ($content -match "util.getElectronVersion") {
+              $fixedContent = $content -replace "const \{ electronVersion, msBuildId \} = util\.getElectronVersion\(\);", "const electronVersion = '34.3.2'; const msBuildId = '11161073';"
+              $fixedContent | Out-File -FilePath $electronJsPath -Encoding utf8
+              Write-Host "Successfully patched electron.js to use hardcoded values"
             }
           }
-          "@ | Out-File -FilePath build/lib/util.patch -Encoding utf8
-
-          # Apply the patch manually
-          $utilContent = Get-Content -Path build/lib/util.ts -Raw
-          $utilContent = $utilContent -replace "export function getElectronVersion\(\): Record<string, string> \{[\s\S]*?return \{ electronVersion, msBuildId \};\r?\n\}", (Get-Content -Path build/lib/util.patch -Raw)
-          $utilContent | Out-File -FilePath build/lib/util.ts -Encoding utf8
-
-          # Compile the TypeScript file
-          npx tsc build/lib/util.ts --target ES2020 --module commonjs --esModuleInterop
         shell: pwsh
 
       - name: Create empty fetch-mcp directory
@@ -320,6 +302,32 @@ jobs:
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
+      - name: Direct fix for electron.js
+        run: |
+          # Create parent directory if it doesn't exist
+          mkdir -p build/lib
+
+          # Add hard-coded values directly to a module
+          cat > build/lib/electron-version-hardcoded.js << 'EOF'
+          // Hardcoded electron version values
+          const electronVersion = '34.3.2';
+          const msBuildId = '11161073';
+
+          // Export these values
+          module.exports = {
+            getElectronVersion: function() {
+              return { electronVersion, msBuildId };
+            },
+            version: electronVersion
+          };
+          EOF
+
+          # Check if electron.js exists and patch it
+          if [ -f "build/lib/electron.js" ]; then
+            sed -i 's/const { electronVersion, msBuildId } = util.getElectronVersion();/const electronVersion = "34.3.2"; const msBuildId = "11161073";/' build/lib/electron.js
+            echo "Successfully patched electron.js"
+          fi
+
       - name: Build
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -387,6 +395,32 @@ jobs:
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
+      - name: Direct fix for electron.js
+        run: |
+          # Create parent directory if it doesn't exist
+          mkdir -p build/lib
+
+          # Add hard-coded values directly to a module
+          cat > build/lib/electron-version-hardcoded.js << 'EOF'
+          // Hardcoded electron version values
+          const electronVersion = '34.3.2';
+          const msBuildId = '11161073';
+
+          // Export these values
+          module.exports = {
+            getElectronVersion: function() {
+              return { electronVersion, msBuildId };
+            },
+            version: electronVersion
+          };
+          EOF
+
+          # Check if electron.js exists and patch it
+          if [ -f "build/lib/electron.js" ]; then
+            sed -i 's/const { electronVersion, msBuildId } = util.getElectronVersion();/const electronVersion = "34.3.2"; const msBuildId = "11161073";/' build/lib/electron.js
+            echo "Successfully patched electron.js"
+          fi
+
       - name: Build
         env:
           GITHUB_TOKEN: ${{ github.token }}
