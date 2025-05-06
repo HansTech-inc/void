@@ -13,6 +13,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          submodules: false
+
+      - name: Configure Git to ignore submodules
+        run: |
+          git config --global submodule.fetch-mcp.update none
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -21,6 +27,8 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           sudo apt-get update
           sudo apt-get install -y pkg-config libx11-dev libxkbfile-dev libsecret-1-dev libkrb5-dev
@@ -33,10 +41,20 @@ jobs:
           echo "fetch-timeout=300000" >> .npmrc
           echo "fetch-retry-mintimeout=20000" >> .npmrc
           echo "fetch-retry-maxtimeout=120000" >> .npmrc
+          # Verify existing .npmrc file has electron settings
+          if ! grep -q "target=" .npmrc; then
+            echo 'disturl="https://electronjs.org/headers"' >> .npmrc
+            echo 'target="34.3.2"' >> .npmrc
+            echo 'ms_build_id="11161073"' >> .npmrc
+            echo 'runtime="electron"' >> .npmrc
+            echo 'build_from_source="true"' >> .npmrc
+          fi
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
       - name: Build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           npm run buildreact
           npm run gulp vscode-linux-x64-min
@@ -61,6 +79,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          submodules: false
+
+      - name: Configure Git to ignore submodules
+        run: |
+          git config --global submodule.fetch-mcp.update none
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -69,6 +93,8 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           sudo apt-get update
           sudo apt-get install -y pkg-config libx11-dev libxkbfile-dev libsecret-1-dev libkrb5-dev
@@ -81,10 +107,20 @@ jobs:
           echo "fetch-timeout=300000" >> .npmrc
           echo "fetch-retry-mintimeout=20000" >> .npmrc
           echo "fetch-retry-maxtimeout=120000" >> .npmrc
+          # Verify existing .npmrc file has electron settings
+          if ! grep -q "target=" .npmrc; then
+            echo 'disturl="https://electronjs.org/headers"' >> .npmrc
+            echo 'target="34.3.2"' >> .npmrc
+            echo 'ms_build_id="11161073"' >> .npmrc
+            echo 'runtime="electron"' >> .npmrc
+            echo 'build_from_source="true"' >> .npmrc
+          fi
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
       - name: Build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           npm run buildreact
           npm run gulp vscode-linux-arm64-min
@@ -109,6 +145,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          submodules: false
+
+      - name: Configure Git to ignore submodules
+        run: |
+          git config --global submodule.fetch-mcp.update none
+        shell: pwsh
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -116,24 +159,100 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Create .npmrc file
         run: |
-          # Create .npmrc file with authentication tokens
-          echo "//github.com/:_authToken=${{ github.token }}" > .npmrc
-          echo "//api.github.com/:_authToken=${{ github.token }}" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ github.token }}" >> .npmrc
-          echo "@microsoft:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "@vscode:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "fetch-timeout=300000" >> .npmrc
-          echo "fetch-retry-mintimeout=20000" >> .npmrc
-          echo "fetch-retry-maxtimeout=120000" >> .npmrc
+          # Create .npmrc file with proper electron settings and authentication tokens
+          @"
+          disturl="https://electronjs.org/headers"
+          target="34.3.2"
+          ms_build_id="11161073"
+          runtime="electron"
+          build_from_source="true"
+          legacy-peer-deps="true"
+          timeout=180000
+          @microsoft:registry=https://npm.pkg.github.com
+          @vscode:registry=https://npm.pkg.github.com
+          //npm.pkg.github.com/:_authToken=${{ github.token }}
+          //github.com/:_authToken=${{ github.token }}
+          //api.github.com/:_authToken=${{ github.token }}
+          fetch-timeout=300000
+          fetch-retry-mintimeout=20000
+          fetch-retry-maxtimeout=120000
+          "@ | Out-File -FilePath .npmrc -Encoding utf8
+
+          # Display the content of the .npmrc file for verification
+          Get-Content .npmrc
+        shell: pwsh
+
+      - name: Patch getElectronVersion function
+        run: |
+          # Create patch for getElectronVersion function to handle errors better
+          @"
+          export function getElectronVersion(): Record<string, string> {
+            try {
+              const npmrc = fs.readFileSync(path.join(root, '.npmrc'), 'utf8');
+              console.log('Read .npmrc file:', npmrc);
+
+              const electronVersionMatch = /target="([^"]+)"/m.exec(npmrc);
+              const msBuildIdMatch = /ms_build_id="([^"]+)"/m.exec(npmrc);
+
+              if (!electronVersionMatch) {
+                console.error('Electron version not found in .npmrc file');
+                return { electronVersion: '34.3.2', msBuildId: '11161073' };
+              }
+
+              if (!msBuildIdMatch) {
+                console.error('MS Build ID not found in .npmrc file');
+                return { electronVersion: electronVersionMatch[1], msBuildId: '11161073' };
+              }
+
+              const electronVersion = electronVersionMatch[1];
+              const msBuildId = msBuildIdMatch[1];
+              console.log('Electron version:', electronVersion);
+              console.log('MS Build ID:', msBuildId);
+              return { electronVersion, msBuildId };
+            } catch (error) {
+              console.error('Error in getElectronVersion:', error);
+              return { electronVersion: '34.3.2', msBuildId: '11161073' };
+            }
+          }
+          "@ | Out-File -FilePath build/lib/util.patch -Encoding utf8
+
+          # Apply the patch manually
+          $utilContent = Get-Content -Path build/lib/util.ts -Raw
+          $utilContent = $utilContent -replace "export function getElectronVersion\(\): Record<string, string> \{[\s\S]*?return \{ electronVersion, msBuildId \};\r?\n\}", (Get-Content -Path build/lib/util.patch -Raw)
+          $utilContent | Out-File -FilePath build/lib/util.ts -Encoding utf8
+
+          # Compile the TypeScript file
+          npx tsc build/lib/util.ts --target ES2020 --module commonjs --esModuleInterop
+        shell: pwsh
+
+      - name: Create empty fetch-mcp directory
+        run: |
+          if (-not (Test-Path -Path "fetch-mcp")) {
+            New-Item -Path "fetch-mcp" -ItemType Directory -Force
+          }
+        shell: pwsh
+
+      - name: Install dependencies
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
-      - name: Build
-        run: |
-          npm run buildreact
-          npm run gulp vscode-win32-x64-min
+        shell: cmd
+
+      - name: Build React Components
+        run: npm run buildreact
+        shell: cmd
+
+      - name: Build Electron App
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npm run gulp vscode-win32-x64-min
+        shell: cmd
+
       - name: Package
         run: |
           mkdir -p .build/win32-x64
@@ -159,6 +278,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          submodules: false
+
+      - name: Configure Git to ignore submodules
+        run: |
+          git config --global submodule.fetch-mcp.update none
+        shell: pwsh
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -166,24 +292,100 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Create .npmrc file
         run: |
-          # Create .npmrc file with authentication tokens
-          echo "//github.com/:_authToken=${{ github.token }}" > .npmrc
-          echo "//api.github.com/:_authToken=${{ github.token }}" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ github.token }}" >> .npmrc
-          echo "@microsoft:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "@vscode:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "fetch-timeout=300000" >> .npmrc
-          echo "fetch-retry-mintimeout=20000" >> .npmrc
-          echo "fetch-retry-maxtimeout=120000" >> .npmrc
+          # Create .npmrc file with proper electron settings and authentication tokens
+          @"
+          disturl="https://electronjs.org/headers"
+          target="34.3.2"
+          ms_build_id="11161073"
+          runtime="electron"
+          build_from_source="true"
+          legacy-peer-deps="true"
+          timeout=180000
+          @microsoft:registry=https://npm.pkg.github.com
+          @vscode:registry=https://npm.pkg.github.com
+          //npm.pkg.github.com/:_authToken=${{ github.token }}
+          //github.com/:_authToken=${{ github.token }}
+          //api.github.com/:_authToken=${{ github.token }}
+          fetch-timeout=300000
+          fetch-retry-mintimeout=20000
+          fetch-retry-maxtimeout=120000
+          "@ | Out-File -FilePath .npmrc -Encoding utf8
+
+          # Display the content of the .npmrc file for verification
+          Get-Content .npmrc
+        shell: pwsh
+
+      - name: Patch getElectronVersion function
+        run: |
+          # Create patch for getElectronVersion function to handle errors better
+          @"
+          export function getElectronVersion(): Record<string, string> {
+            try {
+              const npmrc = fs.readFileSync(path.join(root, '.npmrc'), 'utf8');
+              console.log('Read .npmrc file:', npmrc);
+
+              const electronVersionMatch = /target="([^"]+)"/m.exec(npmrc);
+              const msBuildIdMatch = /ms_build_id="([^"]+)"/m.exec(npmrc);
+
+              if (!electronVersionMatch) {
+                console.error('Electron version not found in .npmrc file');
+                return { electronVersion: '34.3.2', msBuildId: '11161073' };
+              }
+
+              if (!msBuildIdMatch) {
+                console.error('MS Build ID not found in .npmrc file');
+                return { electronVersion: electronVersionMatch[1], msBuildId: '11161073' };
+              }
+
+              const electronVersion = electronVersionMatch[1];
+              const msBuildId = msBuildIdMatch[1];
+              console.log('Electron version:', electronVersion);
+              console.log('MS Build ID:', msBuildId);
+              return { electronVersion, msBuildId };
+            } catch (error) {
+              console.error('Error in getElectronVersion:', error);
+              return { electronVersion: '34.3.2', msBuildId: '11161073' };
+            }
+          }
+          "@ | Out-File -FilePath build/lib/util.patch -Encoding utf8
+
+          # Apply the patch manually
+          $utilContent = Get-Content -Path build/lib/util.ts -Raw
+          $utilContent = $utilContent -replace "export function getElectronVersion\(\): Record<string, string> \{[\s\S]*?return \{ electronVersion, msBuildId \};\r?\n\}", (Get-Content -Path build/lib/util.patch -Raw)
+          $utilContent | Out-File -FilePath build/lib/util.ts -Encoding utf8
+
+          # Compile the TypeScript file
+          npx tsc build/lib/util.ts --target ES2020 --module commonjs --esModuleInterop
+        shell: pwsh
+
+      - name: Create empty fetch-mcp directory
+        run: |
+          if (-not (Test-Path -Path "fetch-mcp")) {
+            New-Item -Path "fetch-mcp" -ItemType Directory -Force
+          }
+        shell: pwsh
+
+      - name: Install dependencies
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
-      - name: Build
-        run: |
-          npm run buildreact
-          npm run gulp vscode-win32-arm64-min
+        shell: cmd
+
+      - name: Build React Components
+        run: npm run buildreact
+        shell: cmd
+
+      - name: Build Electron App
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npm run gulp vscode-win32-arm64-min
+        shell: cmd
+
       - name: Package
         run: |
           mkdir -p .build/win32-arm64

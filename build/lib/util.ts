@@ -376,7 +376,18 @@ export function streamToPromise(stream: NodeJS.ReadWriteStream): Promise<void> {
 
 export function getElectronVersion(): Record<string, string> {
 	const npmrc = fs.readFileSync(path.join(root, '.npmrc'), 'utf8');
-	const electronVersion = /^target="(.*)"$/m.exec(npmrc)![1];
-	const msBuildId = /^ms_build_id="(.*)"$/m.exec(npmrc)![1];
+	const electronVersionMatch = /^target="(.*)"$/m.exec(npmrc);
+	const msBuildIdMatch = /^ms_build_id="(.*)"$/m.exec(npmrc);
+
+	if (!electronVersionMatch) {
+		throw new Error('Electron version not found in .npmrc file. Make sure target="x.y.z" is defined.');
+	}
+
+	if (!msBuildIdMatch) {
+		throw new Error('MS Build ID not found in .npmrc file. Make sure ms_build_id="xxxxxxxx" is defined.');
+	}
+
+	const electronVersion = electronVersionMatch[1];
+	const msBuildId = msBuildIdMatch[1];
 	return { electronVersion, msBuildId };
 }
