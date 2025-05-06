@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { VSBuffer } from 'vs/base/common/buffer';
-import { VoidImageMimeType } from 'vs/workbench/contrib/void/common/imageMessageTypes';
+import { VSBuffer } from '../../../../../../../base/common/buffer.js';
+import { VoidImageMimeType } from '../../../../../../../workbench/contrib/void/common/imageMessageTypes.js';
 
 export interface ImagePreviewProps {
     image: VSBuffer;
@@ -22,7 +22,6 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({ image, mimeType, onR
             URL.revokeObjectURL(url);
         };
     }, [image, mimeType]);
-
     return (
         <div
             className="image-preview-container"

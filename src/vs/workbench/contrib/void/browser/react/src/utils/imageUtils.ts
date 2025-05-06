@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { VSBuffer } from '../../../../../../../base/common/buffer';
+import { VSBuffer } from '../../../../../../../base/common/buffer.js';
 
 /**
  * Resizes an image provided as a VSBuffer or Uint8Array. Resizing is based on OpenAI's algorithm for tokenizing images.

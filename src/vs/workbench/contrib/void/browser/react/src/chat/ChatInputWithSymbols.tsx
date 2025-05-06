@@ -1,13 +1,13 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { VSBuffer } from '../../../../../../../base/common/buffer';
-import { AtSymbolCompletions } from './AtSymbolCompletions';
-import { AtSymbolContext } from '../../../common/atSymbolService';
-import { useService } from '../context';
-import { IAtSymbolService } from '../../../common/atSymbolService';
-import { ImageAttachment } from './ImageAttachment';
-import { ImagePreview } from './ImagePreview';
-import { VoidImageMimeType, IVoidImagePart } from '../../../../../../../vs/workbench/contrib/void/common/imageMessageTypes';
-import { resizeImage, readImageFromClipboard } from '../utils/imageUtils';
+import { VSBuffer } from '../../../../../../../base/common/buffer.js';
+import { AtSymbolCompletions } from './AtSymbolCompletions.js';
+import { AtSymbolContext } from '../../../common/atSymbolService.js';
+import { useService } from '../context.js';
+import { IAtSymbolService } from '../../../common/atSymbolService.js';
+import { ImageAttachment } from './ImageAttachment.js';
+import { ImagePreview } from './ImagePreview.js';
+import { VoidImageMimeType, IVoidImagePart } from '../../../../../../../vs/workbench/contrib/void/common/imageMessageTypes.js';
+import { resizeImage, readImageFromClipboard } from '../utils/imageUtils.js';
 
 interface ChatInputWithSymbolsProps {
     onSubmit: (text: string, contexts: AtSymbolContext[], images?: IVoidImagePart[]) => void;

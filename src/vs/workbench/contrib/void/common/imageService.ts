@@ -3,10 +3,10 @@
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
  *--------------------------------------------------------------------------------------*/
 
-import { VSBuffer } from '../../../../../../../vs/base/common/buffer';
-import { IVoidImagePart, VoidImageMimeType } from './imageMessageTypes';
-import { AnthropicLLMChatMessage, GeminiLLMChatMessage, OpenAILLMChatMessage } from './sendLLMMessageTypes';
-import { ProviderName } from './voidSettingsTypes';
+import { VSBuffer } from 'vs/base/common/buffer.js';
+import { IVoidImagePart, VoidImageMimeType } from './imageMessageTypes.js';
+import { AnthropicLLMChatMessage, GeminiLLMChatMessage, OpenAILLMChatMessage } from './sendLLMMessageTypes.js';
+import { ProviderName } from './voidSettingsTypes.js';
 
 /**
  * Converts base64 encoded string to VSBuffer

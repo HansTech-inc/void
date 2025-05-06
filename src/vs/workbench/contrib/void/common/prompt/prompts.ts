@@ -193,23 +193,23 @@ export const voidTools
 	= {
 		// --- context-gathering (read/search/list) ---
 
-read_file: {
-name: 'read_file',
-description: `Returns file contents with mode-specific line limits (750 lines in Agent mode, 250 lines in other modes). Use pagination for larger files.`,
-params: {
-...uriParam('file'),
-start_line: {
-    description: 'Optional starting line number. Leave empty to start from beginning.'
-},
-end_line: {
-    description: 'Optional ending line number. Limited to 750 lines in Agent mode, 250 lines in other modes from start_line.'
-},
-mode: {
-    description: 'Optional. Specify "agent" to get up to 750 lines, otherwise defaults to 250 lines.'
-},
-...paginationParam,
-},
-},
+		read_file: {
+			name: 'read_file',
+			description: `Returns file contents with mode-specific line limits (750 lines in Agent mode, 250 lines in other modes). Use pagination for larger files.`,
+			params: {
+				...uriParam('file'),
+				start_line: {
+					description: 'Optional starting line number. Leave empty to start from beginning.'
+				},
+				end_line: {
+					description: 'Optional ending line number. Limited to 750 lines in Agent mode, 250 lines in other modes from start_line.'
+				},
+				mode: {
+					description: 'Optional. Specify "agent" to get up to 750 lines, otherwise defaults to 250 lines.'
+				},
+				...paginationParam,
+			},
+		},
 
 		ls_dir: {
 			name: 'ls_dir',
@@ -339,35 +339,11 @@ mode: {
 		},
 
 
-kill_persistent_terminal: {
-name: 'kill_persistent_terminal',
-description: `Interrupts and closes a persistent terminal that you opened with open_persistent_terminal.`,
-params: { persistent_terminal_id: { description: `The ID of the persistent terminal.` } }
-},
-
-web_search: {
-name: 'web_search',
-description: `AI-powered smart web search and website analysis`,
-params: {
-query: { description: 'Your search query or website URL' },
-intent: {
-    description: 'Optional. Search intent: "documentation", "example", "tutorial", "solution", or "general". AI will detect if not specified.',
-},
-filters: {
-    description: 'Optional. Filter options as JSON: { "language": "typescript", "timeframe": "m1" }. AI will optimize if not specified.'
-},
-mode: {
-    description: 'Operation mode: "search" for smart web search, or "clone" for website analysis'
-},
-page: {
-    description: 'Optional. For search mode, which page of results to fetch (1 or 2). Default fetches both pages.'
-}
-}
-}
-
-
-		// go_to_definition
-		// go_to_usages
+		kill_persistent_terminal: {
+			name: 'kill_persistent_terminal',
+			description: `Kill a persistent terminal`,
+			params: { persistent_terminal_id: { description: `The ID of the persistent terminal.` } }
+		},
 
 	} satisfies { [T in keyof ToolResultType]: InternalToolInfo }
 
@@ -493,7 +469,7 @@ ${directoryStr}
 	}
 
 	if (mode === 'agent') {
-details.push(`You are an Autonomous AI Coding Agent with full capabilities to independently handle complex development tasks.
+		details.push(`You are an Autonomous AI Coding Agent with full capabilities to independently handle complex development tasks.
 
 🧠 Core Capabilities:
 - Full autonomy in exploring and modifying codebases

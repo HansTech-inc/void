@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------*/
 
 import { ComputedDiff } from '../../common/editCodeServiceTypes.js';
-import { diffLines } from '../react/src2/diff/index.js'
+import { diffLines } from '../react/out/diff/index.js';
 
 export function findDiffs(oldStr: string, newStr: string) {
 
