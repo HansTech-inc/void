@@ -10,6 +10,10 @@ import {
 	IViewDescriptorService,
 } from '../../../common/views.js';
 
+import { Emitter } from '../../../../base/common/event.js';
+import { IVoidImagePart, VoidImageMimeType } from '../common/imageMessageTypes.js';
+import { IChatThreadService } from './chatThreadService.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
 import * as nls from '../../../../nls.js';
 
 // import { Codicon } from '../../../../base/common/codicons.js';
@@ -19,6 +23,7 @@ import { ViewPaneContainer } from '../../../browser/parts/views/viewPaneContaine
 
 import { SyncDescriptor } from '../../../../platform/instantiation/common/descriptors.js';
 // import { KeyCode, KeyMod } from '../../../../base/common/keyCodes.js';
+import { VSBuffer } from '../../../../../vs/base/common/buffer.js';
 
 
 import { IViewPaneOptions, ViewPane } from '../../../browser/parts/views/viewPane.js';
@@ -63,8 +68,8 @@ class SidebarViewPane extends ViewPane {
 		@IOpenerService openerService: IOpenerService,
 		@ITelemetryService telemetryService: ITelemetryService,
 		@IHoverService hoverService: IHoverService,
-		// @ICodeEditorService private readonly editorService: ICodeEditorService,
-		// @IContextKeyService private readonly editorContextKeyService: IContextKeyService,
+		@IChatThreadService private readonly _chatThreadService: IChatThreadService,
+		@INotificationService private readonly _notificationService: INotificationService,
 	) {
 		super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService)
 
@@ -74,15 +79,121 @@ class SidebarViewPane extends ViewPane {
 
 	protected override renderBody(parent: HTMLElement): void {
 		super.renderBody(parent);
-		// parent.style.overflow = 'auto'
 		parent.style.userSelect = 'text'
 
-		// gets set immediately
+		// Add paste event listener for images
+		parent.addEventListener('paste', (e: ClipboardEvent) => {
+			const items = e.clipboardData?.items;
+			if (!items) return;
+
+			for (const item of Array.from(items)) {
+				if (item.type.startsWith('image/')) {
+					const file = item.getAsFile();
+					if (file) {
+						// Handle pasted image
+						this.handleImageFile(file);
+					}
+				}
+			}
+		});
+
+		// Add drag & drop for image files
+		parent.addEventListener('dragover', (e: DragEvent) => {
+			e.preventDefault();
+			e.stopPropagation();
+		});
+
+		parent.addEventListener('drop', (e: DragEvent) => {
+			e.preventDefault();
+			e.stopPropagation();
+
+			const items = e.dataTransfer?.items;
+			if (!items) return;
+
+			for (const item of Array.from(items)) {
+				if (item.kind === 'file' && item.type.startsWith('image/')) {
+					const file = item.getAsFile();
+					if (file) {
+						// Handle dropped image
+						this.handleImageFile(file);
+					}
+				}
+			}
+		});
+
+		// Mount React
 		this.instantiationService.invokeFunction(accessor => {
-			// mount react
 			const disposeFn: (() => void) | undefined = mountSidebar(parent, accessor)?.dispose;
 			this._register(toDisposable(() => disposeFn?.()))
 		});
+	}
+
+	private handleImageFile(file: File) {
+		// Validate MIME type
+		if (!Object.values(VoidImageMimeType).includes(file.type as VoidImageMimeType)) {
+			this._notificationService.warn(`Unsupported image format: ${file.type}. Supported formats are: PNG, JPEG, GIF, WEBP`);
+			return;
+		}
+
+		const reader = new FileReader();
+		reader.onload = () => {
+			const buffer = VSBuffer.wrap(new Uint8Array(reader.result as ArrayBuffer));
+
+			try {
+				const thread = this._chatThreadService.getCurrentThread();
+				const messages = thread.messages;
+
+				// Find last user message or create new one if none exists
+				let messageIdx = messages.length - 1;
+				let message = messages[messageIdx];
+
+				if (!message || message.role !== 'user') {
+					this._notificationService.warn('Please start typing a message before adding images');
+					return;
+				}
+
+				// Create and add image to message
+				const imagePart: IVoidImagePart = {
+					type: 'image',
+					mimeType: file.type as VoidImageMimeType,
+					data: buffer
+				};
+
+				// Get current thread messages
+				const thread = this._chatThreadService.getCurrentThread();
+				const messages = [...thread.messages];  // Create copy to modify
+
+				// Update the message with image
+				const updatedMessage = {
+					...messages[messageIdx],
+					images: [...(message.images || []), imagePart]
+				};
+				messages[messageIdx] = updatedMessage;
+
+				// Update thread
+				this._chatThreadService.dangerousSetState({
+					...this._chatThreadService.state,
+					allThreads: {
+						...this._chatThreadService.state.allThreads,
+						[thread.id]: {
+							...thread,
+							messages
+						}
+					}
+				});
+
+				this._notificationService.info('Image added to message');
+
+			} catch (error) {
+				this._notificationService.error(`Failed to add image: ${error.message}`);
+			}
+		};
+
+		reader.onerror = () => {
+			this._notificationService.error('Failed to read image file');
+		};
+
+		reader.readAsArrayBuffer(file);
 	}
 
 	protected override layoutBody(height: number, width: number): void {
