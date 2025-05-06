@@ -8,14 +8,17 @@ import { ToolApprovalType } from './toolsServiceTypes.js';
 import { VoidSettingsState } from './voidSettingsService.js'
 
 
-export type ProviderName = 'anthropic' | 'openAI' | 'deepseek' | 'ollama' | 'vLLM' | 'openRouter' |
-    'openAICompatible' | 'glama' | 'gemini' | 'groq' | 'xAI' | 'mistral' | 'lmStudio' | 'liteLLM' | 'microsoftAzure'
+export type ProviderName = keyof typeof defaultProviderSettings;
 
 export const localProviderNames = ['ollama', 'vLLM', 'lmStudio'] as const
 export const nonlocalProviderNames = ['anthropic', 'openAI', 'deepseek', 'openRouter', 'openAICompatible',
     'glama', 'gemini', 'groq', 'xAI', 'mistral', 'liteLLM', 'microsoftAzure'] as const
 
-type CustomSettingName = UnionOfKeys<typeof defaultProviderSettings[ProviderName]>
+type CustomSettingName =
+  | SettingNameEnum.ApiKey
+  | SettingNameEnum.Endpoint
+  | SettingNameEnum.AzureApiVersion
+  | SettingNameEnum.Project
 type CustomProviderSettings<providerName extends ProviderName> = {
 	[k in CustomSettingName]: k extends keyof typeof defaultProviderSettings[providerName] ? string : undefined
 }
@@ -34,8 +37,8 @@ export type VoidStatefulModelInfo = { // <-- STATEFUL
 
 
 type CommonProviderSettings = {
-	_didFillInProviderSettings: boolean | undefined, // undefined initially, computed when user types in all fields
-	models: VoidStatefulModelInfo[],
+	[SettingNameEnum.DidFillInProviderSettings]: boolean | undefined, // undefined initially, computed when user types in all fields
+	[SettingNameEnum.Models]: VoidStatefulModelInfo[],
 }
 
 export type SettingsAtProvider<providerName extends ProviderName> = CustomProviderSettings<providerName> & CommonProviderSettings
@@ -46,7 +49,7 @@ export type SettingsOfProvider = {
 }
 
 
-export type SettingName = keyof SettingsAtProvider<ProviderName>
+export type SettingName = SettingNameEnum
 
 type DisplayInfoForProviderName = {
 	title: string,
@@ -133,104 +136,94 @@ type DisplayInfo = {
 	placeholder: string;
 	isPasswordField?: boolean;
 }
-export const displayInfoOfSettingName = (providerName: ProviderName, settingName: SettingName): DisplayInfo => {
-	if (settingName === 'apiKey') {
-		return {
-			title: 'API Key',
+export enum SettingNameEnum {
+  ApiKey = 'apiKey',
+  Endpoint = 'endpoint',
+  AzureApiVersion = 'azureApiVersion',
+  Project = 'project',
+  DidFillInProviderSettings = '_didFillInProviderSettings',
+  Models = 'models'
+}
 
-			// **Please follow this convention**:
-			// The word "key..." here is a placeholder for the hash. For example, sk-ant-key... means the key will look like sk-ant-abcdefg123...
-			placeholder: providerName === 'anthropic' ? 'sk-ant-key...' : // sk-ant-api03-key
-				providerName === 'openAI' ? 'sk-proj-key...' :
-					providerName === 'deepseek' ? 'sk-key...' :
-						providerName === 'openRouter' ? 'sk-or-key...' : // sk-or-v1-key
-							providerName === 'gemini' ? 'AIzaSy...' :
-								providerName === 'groq' ? 'gsk_key...' :
-									providerName === 'openAICompatible' ? 'sk-key...' :
-										providerName === 'xAI' ? 'xai-key...' :
-											providerName === 'mistral' ? 'api-key...' :
-												// providerName === 'googleVertex' ? 'AIzaSy...' :
-												providerName === 'microsoftAzure' ? 'key-...' :
-													'',
+type ApiKeyPlaceholder = {
+  [P in ProviderName]?: string;
+};
 
-			isPasswordField: true,
-		}
-	}
-	else if (settingName === 'endpoint') {
-		return {
-			title: providerName === 'ollama' ? 'Endpoint' :
-				providerName === 'vLLM' ? 'Endpoint' :
-					providerName === 'lmStudio' ? 'Endpoint' :
-						providerName === 'openAICompatible' ? 'baseURL' : // (do not include /chat/completions)
-							// providerName === 'googleVertex' ? 'baseURL' :
-							providerName === 'microsoftAzure' ? 'baseURL' :
-								providerName === 'liteLLM' ? 'baseURL' :
-									'(never)',
+const apiKeyPlaceholders: ApiKeyPlaceholder = {
+  anthropic: 'sk-ant-key...',
+  openAI: 'sk-proj-key...',
+  deepseek: 'sk-key...',
+  openRouter: 'sk-or-key...',
+  gemini: 'AIzaSy...',
+  groq: 'gsk_key...',
+  openAICompatible: 'sk-key...',
+  xAI: 'xai-key...',
+  mistral: 'api-key...',
+  microsoftAzure: 'key-...'
+};
 
-			placeholder: providerName === 'ollama' ? defaultProviderSettings.ollama.endpoint
-				: providerName === 'vLLM' ? defaultProviderSettings.vLLM.endpoint
-					: providerName === 'openAICompatible' ? 'https://my-website.com/v1'
-						: providerName === 'lmStudio' ? defaultProviderSettings.lmStudio.endpoint
-							: providerName === 'liteLLM' ? 'http://localhost:4000'
-								: '(never)',
+type EndpointInfo = {
+  title: string;
+  placeholder: string;
+};
 
+const endpointInfos: Partial<Record<ProviderName, EndpointInfo>> = {
+  ollama: { title: 'Endpoint', placeholder: defaultProviderSettings.ollama.endpoint },
+  vLLM: { title: 'Endpoint', placeholder: defaultProviderSettings.vLLM.endpoint },
+  lmStudio: { title: 'Endpoint', placeholder: defaultProviderSettings.lmStudio.endpoint },
+  openAICompatible: { title: 'baseURL', placeholder: 'https://my-website.com/v1' },
+  microsoftAzure: { title: 'baseURL', placeholder: '' },
+  liteLLM: { title: 'baseURL', placeholder: 'http://localhost:4000' }
+};
 
-		}
-	}
-	// else if (settingName === 'region') {
-	// 	// vertex only
-	// 	return {
-	// 		title: 'Region',
-	// 		placeholder: providerName === 'googleVertex' ? defaultProviderSettings.googleVertex.region
-	// 			: ''
-	// 	}
-	// }
-	else if (settingName === 'azureApiVersion') {
-		// azure only
-		return {
-			title: 'API Version',
-			placeholder: providerName === 'microsoftAzure' ? defaultProviderSettings.microsoftAzure.azureApiVersion
-				: ''
-		}
-	}
-	else if (settingName === 'project') {
-		return {
-			title: providerName === 'microsoftAzure' ? 'Resource'
-				// : providerName === 'googleVertex' ? 'Project'
-				: '',
-			placeholder: providerName === 'microsoftAzure' ? 'my-resource'
-				// : providerName === 'googleVertex' ? 'my-project'
-				: ''
+export const displayInfoOfSettingName = (providerName: ProviderName, settingName: SettingNameEnum): DisplayInfo => {
+  switch (settingName) {
+    case SettingNameEnum.ApiKey:
+      return {
+        title: 'API Key',
+        placeholder: apiKeyPlaceholders[providerName] || '',
+        isPasswordField: true
+      };
 
-		}
+    case SettingNameEnum.Endpoint:
+      const info = endpointInfos[providerName] || { title: '(never)', placeholder: '(never)' };
+      return {
+        title: info.title,
+        placeholder: info.placeholder
+      };
 
-	}
-	else if (settingName === '_didFillInProviderSettings') {
-		return {
-			title: '(never)',
-			placeholder: '(never)',
-		}
-	}
-	else if (settingName === 'models') {
-		return {
-			title: '(never)',
-			placeholder: '(never)',
-		}
-	}
+    case SettingNameEnum.AzureApiVersion:
+      return {
+        title: 'API Version',
+        placeholder: providerName === 'microsoftAzure' ? defaultProviderSettings.microsoftAzure.azureApiVersion : ''
+      };
 
-	throw new Error(`displayInfo: Unknown setting name: "${settingName}"`)
+    case SettingNameEnum.Project:
+      return {
+        title: providerName === 'microsoftAzure' ? 'Resource' : '',
+        placeholder: providerName === 'microsoftAzure' ? 'my-resource' : ''
+      };
 
+    case SettingNameEnum.DidFillInProviderSettings:
+    case SettingNameEnum.Models:
+      return {
+        title: '(never)',
+        placeholder: '(never)'
+      };
+
+	     default:
+	       throw new Error(`displayInfo: Unknown setting name: "${settingName}"`);
+	 }
 }
 
 
 
 
 const defaultCustomSettings: Record<CustomSettingName, undefined> = {
-	apiKey: undefined,
-	endpoint: undefined,
-	// region: undefined, // googleVertex
-	project: undefined,
-	azureApiVersion: undefined,
+	[SettingNameEnum.ApiKey]: undefined,
+	[SettingNameEnum.Endpoint]: undefined,
+	[SettingNameEnum.Project]: undefined,
+	[SettingNameEnum.AzureApiVersion]: undefined,
 }
 
 
@@ -345,7 +338,6 @@ export const defaultSettingsOfProvider: SettingsOfProvider = {
 }
 
 
-export type ProviderName = keyof typeof defaultProviderSettings
 export const providerNames = Object.keys(defaultProviderSettings) as ProviderName[]
 
 export type ModelSelection = { providerName: ProviderName, modelName: string }
@@ -387,14 +379,19 @@ export const hasDownloadButtonsOnModelsProviderNames = ['ollama'] as const satis
 
 
 // use this in isFeatuerNameDissbled
+const isRefreshableProviderName = (name: ProviderName): name is RefreshableProviderName => {
+	return refreshableProviderNames.includes(name as RefreshableProviderName)
+}
+
 export const isProviderNameDisabled = (providerName: ProviderName, settingsState: VoidSettingsState) => {
-
 	const settingsAtProvider = settingsState.settingsOfProvider[providerName]
-	const isAutodetected = (refreshableProviderNames as string[]).includes(providerName)
+	const isAutodetected = isRefreshableProviderName(providerName)
 
-	const isDisabled = settingsAtProvider.models.length === 0
+	const isDisabled = settingsAtProvider[SettingNameEnum.Models].length === 0
 	if (isDisabled) {
-		return isAutodetected ? 'providerNotAutoDetected' : (!settingsAtProvider._didFillInProviderSettings ? 'notFilledIn' : 'addModel')
+		return isAutodetected
+			? 'providerNotAutoDetected'
+			: (!settingsAtProvider[SettingNameEnum.DidFillInProviderSettings] ? 'notFilledIn' : 'addModel')
 	}
 	return false
 }
@@ -409,11 +406,15 @@ export const isFeatureNameDisabled = (featureName: FeatureName, settingsState: V
 	}
 
 	// if there are any models they can turn on, tell them that
-	const canTurnOnAModel = !!providerNames.find(providerName => settingsState.settingsOfProvider[providerName].models.filter(m => m.isHidden).length !== 0)
+	const canTurnOnAModel = !!providerNames.find(providerName =>
+		settingsState.settingsOfProvider[providerName][SettingNameEnum.Models].filter(m => m.isHidden).length !== 0
+	)
 	if (canTurnOnAModel) return 'needToEnableModel'
 
 	// if there are any providers filled in, then they just need to add a model
-	const anyFilledIn = !!providerNames.find(providerName => settingsState.settingsOfProvider[providerName]._didFillInProviderSettings)
+	const anyFilledIn = !!providerNames.find(providerName =>
+		settingsState.settingsOfProvider[providerName][SettingNameEnum.DidFillInProviderSettings]
+	)
 	if (anyFilledIn) return 'addModel'
 
 	return 'addProvider'

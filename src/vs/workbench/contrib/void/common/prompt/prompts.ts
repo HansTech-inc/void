@@ -26,8 +26,8 @@ export const MAX_CHILDREN_URIs_PAGE = 500
 
 // terminal tool info
 export const MAX_TERMINAL_CHARS = 100_000
-export const MAX_TERMINAL_INACTIVE_TIME = 8 // seconds
-export const MAX_TERMINAL_BG_COMMAND_TIME = 5
+export const MAX_TERMINAL_INACTIVE_TIME = 200 // seconds
+export const MAX_TERMINAL_BG_COMMAND_TIME = 200 // seconds for background processes
 
 
 // Maximum character limits for prefix and suffix context
