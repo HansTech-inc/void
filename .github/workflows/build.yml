@@ -148,9 +148,24 @@ jobs:
         run: npm run gulp vscode-win32-x64-min
         shell: pwsh
 
+      - name: Verify and Create Required Directories
+        run: |
+          if (-not (Test-Path -Path "..\VSCode-win32-x64")) {
+            New-Item -Path "..\VSCode-win32-x64" -ItemType Directory -Force
+          }
+        shell: pwsh
+
+      - name: Debug Directory Structure
+        run: |
+          Get-ChildItem -Path ..\ -Recurse | Format-Table FullName
+        shell: pwsh
+
       - name: Package
         run: |
-          mkdir -p .build/win32-x64
+          if (-not (Test-Path -Path "..\VSCode-win32-x64")) {
+            Write-Error "Packaging directory '..\VSCode-win32-x64' does not exist."
+            exit 1
+          }
           Compress-Archive -Path ..\VSCode-win32-x64\* -DestinationPath .build\win32-x64\devforge-win32-x64.zip
         shell: pwsh
 
