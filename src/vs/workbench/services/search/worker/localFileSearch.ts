@@ -89,7 +89,7 @@ export class LocalFileSearchWorker implements ILocalFileSearchWorker, IWebWorker
 
 		await time('listDirectory', () => this.walkFolderQuery(handle, reviveQueryProps(query), revivedFolderQuery, extUri, file => {
 			if (!filePatternMatcher(file.name)) {
-				return;
+				return undefined;
 			}
 
 			count++;

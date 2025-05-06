@@ -36,7 +36,8 @@ export type AnthropicLLMChatMessage = {
 	)[];
 } | {
 	role: 'user',
-	content: string | (AnthropicContentBlock)[]
+	content: string | (AnthropicContentBlock)[];
+	images?: IVoidImagePart[];
 }
 
 export type SupportedImageMimeType = 'image/png' | 'image/jpeg' | 'image/gif' | 'image/webp'
@@ -66,6 +67,7 @@ export type OpenAILLMChatMessage = {
 	role: 'tool',
 	content: string;
 	tool_call_id: string;
+	images?: IVoidImagePart[];
 }
 
 export type GeminiLLMChatMessage = {
@@ -81,6 +83,7 @@ export type GeminiLLMChatMessage = {
 		| { functionResponse: { name: ToolName, response: { result: string } } }
 		| { inlineData: { mimeType: string; data: string; } }
 	)[];
+	images?: IVoidImagePart[];
 }
 
 export type LLMChatMessage = AnthropicLLMChatMessage | OpenAILLMChatMessage | GeminiLLMChatMessage

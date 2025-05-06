@@ -61,13 +61,13 @@ export class WellDefinedPrefixTree<V> {
 	delete(key: Iterable<string>): V | undefined {
 		const path = this.getPathToKey(key);
 		if (!path) {
-			return;
+			return undefined;
 		}
 
 		let i = path.length - 1;
 		const value = path[i].node._value;
 		if (value === unset) {
-			return; // not actually a real node
+			return undefined; // not actually a real node
 		}
 
 		this._size--;
@@ -187,7 +187,7 @@ export class WellDefinedPrefixTree<V> {
 		for (const part of key) {
 			const node = path[i].node.children?.get(part);
 			if (!node) {
-				return; // node not in tree
+				return undefined; // node not in tree
 			}
 
 			path.push({ part, node });

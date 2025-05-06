@@ -831,7 +831,7 @@ class SCMHistoryViewModel extends Disposable {
 	getHistoryItemsFilter(): 'all' | 'auto' | ISCMHistoryItemRef[] | undefined {
 		const repository = this.repository.get();
 		if (!repository) {
-			return;
+			return undefined;
 		}
 
 		const filterState = this._repositoryFilterState.get(getProviderKey(repository.provider)) ?? 'auto';

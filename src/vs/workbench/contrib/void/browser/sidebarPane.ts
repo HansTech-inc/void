@@ -128,7 +128,7 @@ class SidebarViewPane extends ViewPane {
 		});
 	}
 
-	private handleImageFile(file: File) {
+	private handleImageFile(file: File): void {
 		// Validate MIME type
 		if (!Object.values(VoidImageMimeType).includes(file.type as VoidImageMimeType)) {
 			this._notificationService.warn(`Unsupported image format: ${file.type}. Supported formats are: PNG, JPEG, GIF, WEBP`);
@@ -137,15 +137,24 @@ class SidebarViewPane extends ViewPane {
 
 		const reader = new FileReader();
 		reader.onload = () => {
-			const buffer = VSBuffer.wrap(new Uint8Array(reader.result as ArrayBuffer));
+			// Ensure proper type cast and validation
+			if (!(reader.result instanceof ArrayBuffer)) {
+				this._notificationService.error('Invalid file data');
+				return;
+			}
+
+			const buffer = VSBuffer.wrap(new Uint8Array(reader.result));
 
 			try {
 				const thread = this._chatThreadService.getCurrentThread();
-				const messages = thread.messages;
+				if (!thread) {
+					this._notificationService.error('No active chat thread');
+					return;
+				}
 
-				// Find last user message or create new one if none exists
-				let messageIdx = messages.length - 1;
-				let message = messages[messageIdx];
+				const messages = [...thread.messages];  // Create copy to modify
+				const messageIdx = messages.length - 1;
+				const message = messages[messageIdx];
 
 				if (!message || message.role !== 'user') {
 					this._notificationService.warn('Please start typing a message before adding images');
@@ -159,10 +168,6 @@ class SidebarViewPane extends ViewPane {
 					data: buffer
 				};
 
-				// Get current thread messages
-				const thread = this._chatThreadService.getCurrentThread();
-				const messages = [...thread.messages];  // Create copy to modify
-
 				// Update the message with image
 				const updatedMessage = {
 					...messages[messageIdx],
@@ -171,16 +176,28 @@ class SidebarViewPane extends ViewPane {
 				messages[messageIdx] = updatedMessage;
 
 				// Update thread
-				this._chatThreadService.dangerousSetState({
-					...this._chatThreadService.state,
-					allThreads: {
-						...this._chatThreadService.state.allThreads,
-						[thread.id]: {
-							...thread,
-							messages
+				try {
+					// Update state immutably
+					this._chatThreadService.dangerousSetState({
+						...this._chatThreadService.state,
+						allThreads: {
+							...this._chatThreadService.state.allThreads,
+							[thread.id]: {
+								...thread,
+								messages: messages.map((m, i) =>
+									i === messageIdx ? {
+										...(m as any), // Cast to any to avoid type errors
+										images: [...((m as any).images || []), imagePart]
+									} : m
+								),
+								lastModified: new Date().toISOString()
+							}
 						}
-					}
-				});
+					});
+} catch (error: any) {
+					this._notificationService.error(`Failed to update message: ${error.message}`);
+					throw error; // Re-throw to be caught by outer try-catch
+				}
 
 				this._notificationService.info('Image added to message');
 

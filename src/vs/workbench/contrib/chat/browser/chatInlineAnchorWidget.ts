@@ -98,11 +98,11 @@ export class InlineAnchorWidget extends Disposable {
 		let location: { readonly uri: URI; readonly range?: IRange };
 
 		let updateContextKeys: (() => Promise<void>) | undefined;
-		if (this.data.kind === 'symbol') {
+		if (this.data.kind === 'symbol' && this.data.symbol) {
 			const symbol = this.data.symbol;
 
-			location = this.data.symbol.location;
-			iconText = this.data.symbol.name;
+			location = symbol.location;
+			iconText = symbol.name;
 			iconClasses = ['codicon', ...getIconClasses(modelService, languageService, undefined, undefined, SymbolKinds.toIcon(symbol.kind))];
 
 			this._store.add(instantiationService.invokeFunction(accessor => hookUpSymbolAttachmentDragAndContextMenu(accessor, element, contextKeyService, { value: symbol.location, name: symbol.name, kind: symbol.kind }, MenuId.ChatInlineSymbolAnchorContext)));
@@ -110,7 +110,7 @@ export class InlineAnchorWidget extends Disposable {
 			location = this.data;
 
 			const label = labelService.getUriBasenameLabel(location.uri);
-			iconText = location.range && this.data.kind !== 'symbol' ?
+			iconText = location.range ?
 				`${label}#${location.range.startLineNumber}-${location.range.endLineNumber}` :
 				label;
 
@@ -271,7 +271,7 @@ registerAction2(class CopyResourceAction extends Action2 {
 
 		// TODO: we should also write out the standard mime types so that external programs can use them
 		// like how `fillEditorsDragData` works but without having an event to work with.
-		const resource = anchor.data.kind === 'symbol' ? anchor.data.symbol.location.uri : anchor.data.uri;
+		const resource = anchor.data.kind === 'symbol' && anchor.data.symbol ? anchor.data.symbol.location.uri : anchor.data.uri;
 		clipboardService.writeResources([resource]);
 	}
 });
@@ -335,7 +335,11 @@ registerAction2(class OpenToSideResourceAction extends Action2 {
 			return undefined;
 		}
 
-		return anchor.data.kind === 'symbol' ? anchor.data.symbol.location : anchor.data.uri;
+		if (anchor.data.kind === 'symbol' && anchor.data.symbol) {
+			return anchor.data.symbol.location;
+		} else {
+			return anchor.data.uri;
+		}
 	}
 });
 

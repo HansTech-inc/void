@@ -54,7 +54,7 @@ function holdForSpeech(accessor: ServicesAccessor, ctrl: InlineChatController, a
 	const commandService = accessor.get(ICommandService);
 
 	// enabled or possible?
-	if (!configService.getValue<boolean>(InlineChatConfigKeys.HoldToSpeech || !speechService.hasSpeechProvider)) {
+	if (!configService.getValue<boolean>(InlineChatConfigKeys.HoldToSpeech) || !speechService.hasSpeechProvider) {
 		return;
 	}
 

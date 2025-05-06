@@ -148,7 +148,7 @@ function globExprsToRgGlobs(patterns: glob.IExpression, folder?: string, exclude
 				}
 
 				globArgs.push(fixDriveC(key));
-			} else if (value && value.when) {
+			} else if (value && typeof value === 'object' && value.when) {
 				siblingClauses[key] = value;
 			}
 		});

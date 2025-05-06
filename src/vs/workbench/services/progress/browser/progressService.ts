@@ -156,17 +156,17 @@ export class ProgressService extends Disposable implements IProgressService {
 			if (progressTitle && progressMessage) {
 				// <title>: <message>
 				text = localize('progress.text2', "{0}: {1}", progressTitle, progressMessage);
-				title = source ? localize('progress.title3', "[{0}] {1}: {2}", source, progressTitle, progressMessage) : text;
+				title = source ? localize({ key: 'progress.title3', comment: ['{0} is the source, {1} is the progress title, {2} is the progress message'] }, "[{0}] {1}: {2}", typeof source === 'string' ? source : source.label, progressTitle, progressMessage) : text;
 
 			} else if (progressTitle) {
 				// <title>
 				text = progressTitle;
-				title = source ? localize('progress.title2', "[{0}]: {1}", source, progressTitle) : text;
+				title = source ? localize({ key: 'progress.title2', comment: ['{0} is the source, {1} is the progress title'] }, "[{0}]: {1}", typeof source === 'string' ? source : source.label, progressTitle) : text;
 
 			} else if (progressMessage) {
 				// <message>
 				text = progressMessage;
-				title = source ? localize('progress.title2', "[{0}]: {1}", source, progressMessage) : text;
+				title = source ? localize({ key: 'progress.title2', comment: ['{0} is the source, {1} is the progress message'] }, "[{0}]: {1}", typeof source === 'string' ? source : source.label, progressMessage) : text;
 
 			} else {
 				// no title, no message -> no progress. try with next on stack
