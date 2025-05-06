@@ -104,15 +104,19 @@ jobs:
 
       - name: Build React Components
         run: |
-          # Add ts-nocheck to TypeScript files
-          Get-ChildItem -Path src -Recurse -Include *.ts,*.tsx | ForEach-Object {
-            $content = Get-Content $_.FullName
-            if ($content[0] -notlike "// @ts-nocheck*") {
-              @("// @ts-nocheck") + $content | Set-Content $_.FullName
+          # Add ts-nocheck to TypeScript files in both src and src2
+          foreach ($dir in @('src', 'src2')) {
+            if (Test-Path $dir) {
+              Get-ChildItem -Path $dir -Recurse -Include *.ts,*.tsx | ForEach-Object {
+                $content = Get-Content $_.FullName
+                if ($content[0] -notlike "// @ts-nocheck*") {
+                  @("// @ts-nocheck") + $content | Set-Content $_.FullName
+                }
+              }
             }
           }
 
-          # Create TypeScript config override
+          # Create TypeScript config override for both src and src2
           $tsConfig = @{
             extends = "./tsconfig.json"
             compilerOptions = @{
@@ -132,6 +136,9 @@ jobs:
             }
           }
           $tsConfig | ConvertTo-Json -Depth 10 | Set-Content tsconfig.build.json
+          if (Test-Path 'src2') {
+            $tsConfig | ConvertTo-Json -Depth 10 | Set-Content src2/tsconfig.build.json
+          }
 
           # Set environment variables
           $env:TS_NODE_TRANSPILE_ONLY = "true"
@@ -280,15 +287,19 @@ jobs:
 
       - name: Build React Components
         run: |
-          # Add ts-nocheck to TypeScript files
-          Get-ChildItem -Path src -Recurse -Include *.ts,*.tsx | ForEach-Object {
-            $content = Get-Content $_.FullName
-            if ($content[0] -notlike "// @ts-nocheck*") {
-              @("// @ts-nocheck") + $content | Set-Content $_.FullName
+          # Add ts-nocheck to TypeScript files in both src and src2
+          foreach ($dir in @('src', 'src2')) {
+            if (Test-Path $dir) {
+              Get-ChildItem -Path $dir -Recurse -Include *.ts,*.tsx | ForEach-Object {
+                $content = Get-Content $_.FullName
+                if ($content[0] -notlike "// @ts-nocheck*") {
+                  @("// @ts-nocheck") + $content | Set-Content $_.FullName
+                }
+              }
             }
           }
 
-          # Create TypeScript config override
+          # Create TypeScript config override for both src and src2
           $tsConfig = @{
             extends = "./tsconfig.json"
             compilerOptions = @{
@@ -308,6 +319,9 @@ jobs:
             }
           }
           $tsConfig | ConvertTo-Json -Depth 10 | Set-Content tsconfig.build.json
+          if (Test-Path 'src2') {
+            $tsConfig | ConvertTo-Json -Depth 10 | Set-Content src2/tsconfig.build.json
+          }
 
           # Set environment variables
           $env:TS_NODE_TRANSPILE_ONLY = "true"
