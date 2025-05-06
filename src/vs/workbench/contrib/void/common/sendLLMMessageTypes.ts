@@ -5,6 +5,7 @@
 
 import { ToolName, ToolParamName } from './prompt/prompts.js'
 import { ChatMode, ModelSelection, ModelSelectionOptions, ProviderName, RefreshableProviderName, SettingsOfProvider } from './voidSettingsTypes.js'
+import { IVoidImagePart } from './imageMessageTypes.js'
 
 
 export const errorDetails = (fullError: Error | null): string | null => {
@@ -36,12 +37,17 @@ export type AnthropicLLMChatMessage = {
 } | {
 	role: 'user',
 	content: string | (
-		{ type: 'text'; text: string; } | { type: 'tool_result'; tool_use_id: string; content: string; }
+		{ type: 'text'; text: string; } |
+		{ type: 'tool_result'; tool_use_id: string; content: string; } |
+		{ type: 'image'; source: { type: 'base64'; media_type: string; data: string; } }
 	)[]
 }
 export type OpenAILLMChatMessage = {
 	role: 'system' | 'user' | 'developer';
-	content: string;
+	content: string | (
+		{ type: 'text'; text: string; } |
+		{ type: 'image_url'; image_url: { url: string; detail?: 'low' | 'high' } }
+	)[];
 } | {
 	role: 'assistant',
 	content: string | (AnthropicReasoning | { type: 'text'; text: string })[];
@@ -63,6 +69,7 @@ export type GeminiLLMChatMessage = {
 	parts: (
 		| { text: string; }
 		| { functionResponse: { name: ToolName, response: { result: string } } }
+		| { inlineData: { mimeType: string; data: string; } }
 	)[];
 }
 

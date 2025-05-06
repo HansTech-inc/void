@@ -1,11 +1,16 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { VSBuffer } from '../../../../../../../base/common/buffer';
 import { AtSymbolCompletions } from './AtSymbolCompletions';
 import { AtSymbolContext } from '../../../common/atSymbolService';
 import { useService } from '../context';
 import { IAtSymbolService } from '../../../common/atSymbolService';
+import { ImageAttachment } from './ImageAttachment';
+import { ImagePreview } from './ImagePreview';
+import { VoidImageMimeType, IVoidImagePart } from '../../../../../../../vs/workbench/contrib/void/common/imageMessageTypes';
+import { resizeImage, readImageFromClipboard } from '../utils/imageUtils';
 
 interface ChatInputWithSymbolsProps {
-    onSubmit: (text: string, contexts: AtSymbolContext[]) => void;
+    onSubmit: (text: string, contexts: AtSymbolContext[], images?: IVoidImagePart[]) => void;
     placeholder?: string;
     disabled?: boolean;
 }
@@ -23,22 +28,54 @@ export const ChatInputWithSymbols: React.FC<ChatInputWithSymbolsProps> = ({
     // Track active contexts
     const [contexts, setContexts] = useState<AtSymbolContext[]>([]);
 
+    // Track attached images
+    const [attachedImages, setAttachedImages] = useState<Array<{data: VSBuffer, mimeType: VoidImageMimeType}>>([]);
+
+    // Track if image attachment UI is open
+    const [isAttachingImage, setIsAttachingImage] = useState(false);
+
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setInputText(event.target.value);
         setCursorPosition(event.target.selectionStart);
     };
 
     const handleKeyDown = async (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        // Check for paste image shortcut (Ctrl+V with image in clipboard)
+        if (event.ctrlKey && event.key === 'v') {
+            try {
+                const imageData = await readImageFromClipboard();
+                if (imageData) {
+                    event.preventDefault();
+                    handleImageAttached(imageData.data, imageData.mimeType as VoidImageMimeType);
+                    return;
+                }
+            } catch (error) {
+                console.error('Failed to paste image:', error);
+            }
+        }
+
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
+            handleSubmit();
+        }
+    };
 
-            if (inputText.trim()) {
-                // Process @ symbols and get final text with contexts
-                const { text, contexts: resolvedContexts } = await atSymbolService.processText(inputText);
-                onSubmit(text, resolvedContexts);
-                setInputText('');
-                setContexts([]);
-            }
+    const handleSubmit = async () => {
+        if (inputText.trim() || attachedImages.length > 0) {
+            // Process @ symbols and get final text with contexts
+            const { text, contexts: resolvedContexts } = await atSymbolService.processText(inputText);
+
+            // Convert attached images to IVoidImagePart format
+            const imageParts: IVoidImagePart[] = attachedImages.map(img => ({
+                type: 'image',
+                mimeType: img.mimeType,
+                data: img.data
+            }));
+
+            onSubmit(text, resolvedContexts, imageParts.length > 0 ? imageParts : undefined);
+            setInputText('');
+            setContexts([]);
+            setAttachedImages([]);
         }
     };
 
@@ -72,8 +109,49 @@ export const ChatInputWithSymbols: React.FC<ChatInputWithSymbolsProps> = ({
         }
     };
 
+    const handleImageAttached = async (data: VSBuffer, mimeType: VoidImageMimeType) => {
+        try {
+            // Resize the image if needed
+            const resizedImage = await resizeImage(data);
+
+            // Add to attached images
+            setAttachedImages(prev => [...prev, { data: resizedImage, mimeType }]);
+
+            // Close the attachment UI
+            setIsAttachingImage(false);
+        } catch (error) {
+            console.error('Failed to process image:', error);
+        }
+    };
+
+    const handleRemoveImage = (index: number) => {
+        setAttachedImages(prev => prev.filter((_, i) => i !== index));
+    };
+
     return (
         <div className="chat-input-container" style={{ position: 'relative' }}>
+            {/* Image Attachment UI */}
+            {isAttachingImage && (
+                <ImageAttachment
+                    onImageAttached={handleImageAttached}
+                    onCancel={() => setIsAttachingImage(false)}
+                />
+            )}
+
+            {/* Image Previews */}
+            {attachedImages.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                    {attachedImages.map((img, index) => (
+                        <ImagePreview
+                            key={index}
+                            image={img.data}
+                            mimeType={img.mimeType}
+                            onRemove={() => handleRemoveImage(index)}
+                        />
+                    ))}
+                </div>
+            )}
+
             <textarea
                 ref={textareaRef}
                 value={inputText}
@@ -122,3 +200,59 @@ export const ChatInputWithSymbols: React.FC<ChatInputWithSymbolsProps> = ({
                                 color: 'var(--vscode-badge-foreground)',
                                 borderRadius: '3px',
                                 display: 'flex',
+                                alignItems: 'center'
+                            }}
+                        >
+                            <span>{context.display || context.value}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Action Buttons */}
+            <div style={{ position: 'absolute', right: '8px', bottom: '8px', display: 'flex', gap: '8px' }}>
+                {/* Image Upload Button */}
+                <button
+                    onClick={() => setIsAttachingImage(true)}
+                    disabled={disabled}
+                    title="Attach image"
+                    style={{
+                        padding: '4px 8px',
+                        backgroundColor: 'var(--vscode-button-secondaryBackground)',
+                        color: 'var(--vscode-button-secondaryForeground)',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    📷
+                </button>
+
+                {/* Send Button */}
+                <button
+                    onClick={handleSubmit}
+                    disabled={disabled || (!inputText.trim() && attachedImages.length === 0)}
+                    style={{
+                        padding: '4px 8px',
+                        backgroundColor: 'var(--vscode-button-background)',
+                        color: 'var(--vscode-button-foreground)',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        opacity: (inputText.trim() || attachedImages.length > 0) ? '1' : '0.5',
+                    }}
+                >
+                    Send
+                </button>
+            </div>
+        </div>
+    );
+};
+
+// Helper function to format context references
+const formatContextReference = (context: AtSymbolContext): string => {
+    return `@[${context.display || context.value}](${context.type}:${context.id})`;
+};

@@ -8,6 +8,7 @@ import { VoidFileSnapshot } from './editCodeServiceTypes.js';
 import { ToolName } from './prompt/prompts.js';
 import { AnthropicReasoning, RawToolParamsObj } from './sendLLMMessageTypes.js';
 import { ToolCallParams, ToolResultType } from './toolsServiceTypes.js';
+import { IVoidImagePart } from './imageMessageTypes.js';
 
 export type ToolMessage<T extends ToolName> = {
 	role: 'tool';
@@ -52,6 +53,7 @@ export type ChatMessage =
 		content: string; // content displayed to the LLM on future calls - allowed to be '', will be replaced with (empty)
 		displayContent: string; // content displayed to user  - allowed to be '', will be ignored
 		selections: StagingSelectionItem[] | null; // the user's selection
+		images?: IVoidImagePart[]; // attached images
 		state: {
 			stagingSelections: StagingSelectionItem[];
 			isBeingEdited: boolean;
