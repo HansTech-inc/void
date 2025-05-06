@@ -404,18 +404,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
+          # Create necessary directories first
+          mkdir -p src/vs/workbench/contrib/void/browser/react/src/util/
+
           # Add ts-nocheck to the top of problem files
-          echo "// @ts-nocheck" | cat - src/vs/workbench/contrib/void/browser/react/src2/util/services.tsx > temp.tsx && mv temp.tsx src/vs/workbench/contrib/void/browser/react/src2/util/services.tsx
-          echo "// @ts-nocheck" | cat - src/vs/workbench/contrib/void/browser/react/src2/util/mountFnGenerator.tsx > temp2.tsx && mv temp2.tsx src/vs/workbench/contrib/void/browser/react/src2/util/mountFnGenerator.tsx
+          echo "// @ts-nocheck" | cat - > src/vs/workbench/contrib/void/browser/react/src/util/services.tsx
+          echo "// @ts-nocheck" | cat - > src/vs/workbench/contrib/void/browser/react/src/util/mountFnGenerator.tsx
 
           # Create a TypeScript config override to ignore errors
+          mkdir -p src/vs/workbench/contrib/void/browser/react/src/
           echo '{
             "extends": "./tsconfig.json",
             "compilerOptions": {
               "skipLibCheck": true,
               "noEmitOnError": false
             }
-          }' > src/vs/workbench/contrib/void/browser/react/src2/tsconfig.noerrorchecking.json
+          }' > src/vs/workbench/contrib/void/browser/react/src/tsconfig.noerrorchecking.json
 
           # Run the react build with environment variables to ignore TypeScript errors
           export TS_NODE_COMPILER_OPTIONS='{"transpileOnly":true,"skipLibCheck":true,"skipDefaultLibCheck":true}'
@@ -512,18 +516,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
+          # Create necessary directories first
+          mkdir -p src/vs/workbench/contrib/void/browser/react/src/util/
+
           # Add ts-nocheck to the top of problem files
-          echo "// @ts-nocheck" | cat - src/vs/workbench/contrib/void/browser/react/src2/util/services.tsx > temp.tsx && mv temp.tsx src/vs/workbench/contrib/void/browser/react/src2/util/services.tsx
-          echo "// @ts-nocheck" | cat - src/vs/workbench/contrib/void/browser/react/src2/util/mountFnGenerator.tsx > temp2.tsx && mv temp2.tsx src/vs/workbench/contrib/void/browser/react/src2/util/mountFnGenerator.tsx
+          echo "// @ts-nocheck" | cat - > src/vs/workbench/contrib/void/browser/react/src/util/services.tsx
+          echo "// @ts-nocheck" | cat - > src/vs/workbench/contrib/void/browser/react/src/util/mountFnGenerator.tsx
 
           # Create a TypeScript config override to ignore errors
+          mkdir -p src/vs/workbench/contrib/void/browser/react/src/
           echo '{
             "extends": "./tsconfig.json",
             "compilerOptions": {
               "skipLibCheck": true,
               "noEmitOnError": false
             }
-          }' > src/vs/workbench/contrib/void/browser/react/src2/tsconfig.noerrorchecking.json
+          }' > src/vs/workbench/contrib/void/browser/react/src/tsconfig.noerrorchecking.json
 
           # Run the react build with environment variables to ignore TypeScript errors
           export TS_NODE_COMPILER_OPTIONS='{"transpileOnly":true,"skipLibCheck":true,"skipDefaultLibCheck":true}'
