@@ -24,17 +24,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y pkg-config libx11-dev libxkbfile-dev libsecret-1-dev libkrb5-dev
-          # Set npm config to use GitHub token for authentication to avoid rate limits
-          npm config set //github.com/:_authToken=${{ github.token }}
-          npm config set //api.github.com/:_authToken=${{ github.token }}
-          npm config set //npm.pkg.github.com/:_authToken=${{ github.token }}
-          # Configure npm to use the GitHub token for all requests to github.com domains
-          npm config set @microsoft:registry https://npm.pkg.github.com
-          npm config set @vscode:registry https://npm.pkg.github.com
-          # Increase network timeout to handle slow connections
-          npm config set fetch-timeout 300000
-          npm config set fetch-retry-mintimeout 20000
-          npm config set fetch-retry-maxtimeout 120000
+          # Create .npmrc file with authentication tokens
+          echo "//github.com/:_authToken=${{ github.token }}" > .npmrc
+          echo "//api.github.com/:_authToken=${{ github.token }}" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ github.token }}" >> .npmrc
+          echo "@microsoft:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "@vscode:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "fetch-timeout=300000" >> .npmrc
+          echo "fetch-retry-mintimeout=20000" >> .npmrc
+          echo "fetch-retry-maxtimeout=120000" >> .npmrc
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
@@ -74,17 +72,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y pkg-config libx11-dev libxkbfile-dev libsecret-1-dev libkrb5-dev
-          # Set npm config to use GitHub token for authentication to avoid rate limits
-          npm config set //github.com/:_authToken=${{ github.token }}
-          npm config set //api.github.com/:_authToken=${{ github.token }}
-          npm config set //npm.pkg.github.com/:_authToken=${{ github.token }}
-          # Configure npm to use the GitHub token for all requests to github.com domains
-          npm config set @microsoft:registry https://npm.pkg.github.com
-          npm config set @vscode:registry https://npm.pkg.github.com
-          # Increase network timeout to handle slow connections
-          npm config set fetch-timeout 300000
-          npm config set fetch-retry-mintimeout 20000
-          npm config set fetch-retry-maxtimeout 120000
+          # Create .npmrc file with authentication tokens
+          echo "//github.com/:_authToken=${{ github.token }}" > .npmrc
+          echo "//api.github.com/:_authToken=${{ github.token }}" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ github.token }}" >> .npmrc
+          echo "@microsoft:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "@vscode:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "fetch-timeout=300000" >> .npmrc
+          echo "fetch-retry-mintimeout=20000" >> .npmrc
+          echo "fetch-retry-maxtimeout=120000" >> .npmrc
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
@@ -122,17 +118,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Set npm config to use GitHub token for authentication to avoid rate limits
-          npm config set //github.com/:_authToken=${{ github.token }}
-          npm config set //api.github.com/:_authToken=${{ github.token }}
-          npm config set //npm.pkg.github.com/:_authToken=${{ github.token }}
-          # Configure npm to use the GitHub token for all requests to github.com domains
-          npm config set @microsoft:registry https://npm.pkg.github.com
-          npm config set @vscode:registry https://npm.pkg.github.com
-          # Increase network timeout to handle slow connections
-          npm config set fetch-timeout 300000
-          npm config set fetch-retry-mintimeout 20000
-          npm config set fetch-retry-maxtimeout 120000
+          # Create .npmrc file with authentication tokens
+          echo "//github.com/:_authToken=${{ github.token }}" > .npmrc
+          echo "//api.github.com/:_authToken=${{ github.token }}" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ github.token }}" >> .npmrc
+          echo "@microsoft:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "@vscode:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "fetch-timeout=300000" >> .npmrc
+          echo "fetch-retry-mintimeout=20000" >> .npmrc
+          echo "fetch-retry-maxtimeout=120000" >> .npmrc
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
@@ -174,17 +168,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Set npm config to use GitHub token for authentication to avoid rate limits
-          npm config set //github.com/:_authToken=${{ github.token }}
-          npm config set //api.github.com/:_authToken=${{ github.token }}
-          npm config set //npm.pkg.github.com/:_authToken=${{ github.token }}
-          # Configure npm to use the GitHub token for all requests to github.com domains
-          npm config set @microsoft:registry https://npm.pkg.github.com
-          npm config set @vscode:registry https://npm.pkg.github.com
-          # Increase network timeout to handle slow connections
-          npm config set fetch-timeout 300000
-          npm config set fetch-retry-mintimeout 20000
-          npm config set fetch-retry-maxtimeout 120000
+          # Create .npmrc file with authentication tokens
+          echo "//github.com/:_authToken=${{ github.token }}" > .npmrc
+          echo "//api.github.com/:_authToken=${{ github.token }}" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ github.token }}" >> .npmrc
+          echo "@microsoft:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "@vscode:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "fetch-timeout=300000" >> .npmrc
+          echo "fetch-retry-mintimeout=20000" >> .npmrc
+          echo "fetch-retry-maxtimeout=120000" >> .npmrc
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
@@ -229,17 +221,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Set npm config to use GitHub token for authentication to avoid rate limits
-          npm config set //github.com/:_authToken=${{ github.token }}
-          npm config set //api.github.com/:_authToken=${{ github.token }}
-          npm config set //npm.pkg.github.com/:_authToken=${{ github.token }}
-          # Configure npm to use the GitHub token for all requests to github.com domains
-          npm config set @microsoft:registry https://npm.pkg.github.com
-          npm config set @vscode:registry https://npm.pkg.github.com
-          # Increase network timeout to handle slow connections
-          npm config set fetch-timeout 300000
-          npm config set fetch-retry-mintimeout 20000
-          npm config set fetch-retry-maxtimeout 120000
+          # Create .npmrc file with authentication tokens
+          echo "//github.com/:_authToken=${{ github.token }}" > .npmrc
+          echo "//api.github.com/:_authToken=${{ github.token }}" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ github.token }}" >> .npmrc
+          echo "@microsoft:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "@vscode:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "fetch-timeout=300000" >> .npmrc
+          echo "fetch-retry-mintimeout=20000" >> .npmrc
+          echo "fetch-retry-maxtimeout=120000" >> .npmrc
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
@@ -366,4 +356,4 @@ jobs:
         with:
           name: devforge-darwin-${{ matrix.arch }}-hash
           path: ${{ env.SIGNED_DOTAPP_DIR }}/DevForge-UpdJSON-darwin-${{ matrix.arch }}.json
-          
+
