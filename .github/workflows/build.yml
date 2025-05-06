@@ -32,6 +32,8 @@ jobs:
           # Create .npmrc file with proper electron settings and authentication tokens
           @"
           disturl="https://electronjs.org/headers"
+          target="34.3.2"
+          ms_build_id="11161073"
           runtime="electron"
           build_from_source="true"
           legacy-peer-deps="true"
@@ -103,8 +105,8 @@ jobs:
       - name: Build React Components
         run: |
           # Add ts-nocheck to the top of problem files
-          echo "// @ts-nocheck" | Out-File -FilePath src/vs/workbench/contrib/void/browser/react/src2/util/services.tsx -Encoding utf8
-          echo "// @ts-nocheck" | Out-File -FilePath src/vs/workbench/contrib/void/browser/react/src2/util/mountFnGenerator.tsx -Encoding utf8
+          echo "// @ts-nocheck" | cat - src/vs/workbench/contrib/void/browser/react/src2/util/services.tsx > temp.tsx && mv temp.tsx src/vs/workbench/contrib/void/browser/react/src2/util/services.tsx
+          echo "// @ts-nocheck" | cat - src/vs/workbench/contrib/void/browser/react/src2/util/mountFnGenerator.tsx > temp2.tsx && mv temp2.tsx src/vs/workbench/contrib/void/browser/react/src2/util/mountFnGenerator.tsx
 
           # Create a TypeScript config override to ignore errors
           echo '{

@@ -80,33 +80,14 @@ function saveStylesFile() {
 const args = process.argv.slice(2);
 const isWatch = args.includes('--watch') || args.includes('-w');
 
-async function cleanupNodeModules() {
-	try {
-		// Force close any handles that might be keeping the directory locked
-		if (process.platform === 'win32') {
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			execSync('taskkill /F /IM node.exe /T', { stdio: 'ignore' });
-		}
-
-		// Remove node_modules directory if it exists
-		if (fs.existsSync('node_modules')) {
-			fs.rmSync('node_modules', { recursive: true, force: true });
-		}
-	} catch (err) {
-		console.warn('Warning: Could not clean up node_modules:', err);
-	}
-}
-
 if (isWatch) {
-	// Clean up before starting
-	await cleanupNodeModules();
-
+	// this just builds it if it doesn't exist instead of waiting for the watcher to trigger
 	// Check if src2/ exists; if not, do an initial scope-tailwind build
 	if (!fs.existsSync('src2')) {
 		try {
 			console.log('🔨 Running initial scope-tailwind build to create src2 folder...');
 			execSync(
-				'npx scope-tailwind ./src -o src2/ -s void-scope -c styles.css -p "void-" --project tsconfig.noerrorchecking.json',
+				'npx scope-tailwind ./src -o src2/ -s void-scope -c styles.css -p "void-"',
 				{ stdio: 'inherit' }
 			);
 			console.log('✅ src2/ created successfully.');
@@ -163,29 +144,11 @@ if (isWatch) {
 	// Build mode
 	console.log('📦 Building...');
 
-	// Clean up before building
-	await cleanupNodeModules();
+	// Run scope-tailwind once
+	execSync('npx scope-tailwind ./src -o src2/ -s void-scope -c styles.css -p "void-"', { stdio: 'inherit' });
 
-	// Set environment variables for node-gyp
-	process.env.NODE_GYP_FORCE_DOWNLOAD = '1';
-	process.env.ELECTRON_SKIP_BINARY_DOWNLOAD = '1';
+	// Run tsup once
+	execSync('npx tsup', { stdio: 'inherit' });
 
-	try {
-		// Install dependencies with electron-rebuild
-		console.log('📦 Installing dependencies...');
-		execSync('npm install --force', { stdio: 'inherit' });
-		console.log('🔧 Rebuilding native modules for Electron...');
-		execSync('npx electron-rebuild', { stdio: 'inherit' });
-
-		// Run scope-tailwind once
-		execSync('npx scope-tailwind ./src -o src2/ -s void-scope -c styles.css -p "void-" --project tsconfig.noerrorchecking.json', { stdio: 'inherit' });
-
-		// Run tsup once
-		execSync('npx tsup', { stdio: 'inherit' });
-
-		console.log('✅ Build complete!');
-	} catch (err) {
-		console.error('❌ Build failed:', err);
-		process.exit(1);
-	}
+	console.log('✅ Build complete!');
 }
