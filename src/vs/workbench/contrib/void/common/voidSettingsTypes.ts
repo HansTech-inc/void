@@ -8,15 +8,12 @@ import { ToolApprovalType } from './toolsServiceTypes.js';
 import { VoidSettingsState } from './voidSettingsService.js'
 
 
-type UnionOfKeys<T> = T extends T ? keyof T : never;
+export type ProviderName = 'anthropic' | 'openAI' | 'deepseek' | 'ollama' | 'vLLM' | 'openRouter' |
+    'openAICompatible' | 'glama' | 'gemini' | 'groq' | 'xAI' | 'mistral' | 'lmStudio' | 'liteLLM' | 'microsoftAzure'
 
-
-
-export type ProviderName = keyof typeof defaultProviderSettings
-export const providerNames = Object.keys(defaultProviderSettings) as ProviderName[]
-
-export const localProviderNames = ['ollama', 'vLLM', 'lmStudio'] satisfies ProviderName[] // all local names
-export const nonlocalProviderNames = providerNames.filter((name) => !(localProviderNames as string[]).includes(name)) // all non-local names
+export const localProviderNames = ['ollama', 'vLLM', 'lmStudio'] as const
+export const nonlocalProviderNames = ['anthropic', 'openAI', 'deepseek', 'openRouter', 'openAICompatible',
+    'glama', 'gemini', 'groq', 'xAI', 'mistral', 'liteLLM', 'microsoftAzure'] as const
 
 type CustomSettingName = UnionOfKeys<typeof defaultProviderSettings[ProviderName]>
 type CustomProviderSettings<providerName extends ProviderName> = {
@@ -347,6 +344,9 @@ export const defaultSettingsOfProvider: SettingsOfProvider = {
 	},
 }
 
+
+export type ProviderName = keyof typeof defaultProviderSettings
+export const providerNames = Object.keys(defaultProviderSettings) as ProviderName[]
 
 export type ModelSelection = { providerName: ProviderName, modelName: string }
 

@@ -3,26 +3,12 @@
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
  *--------------------------------------------------------------------------------------*/
 
-import { VSBuffer } from 'vs/base/common/buffer.js';
-import { IVoidImagePart, VoidImageMimeType } from './imageMessageTypes.js';
+import { VSBuffer } from 'vs/base/common/buffer';
+import { IVoidImagePart } from './imageMessageTypes.js';
 import { AnthropicLLMChatMessage, GeminiLLMChatMessage, OpenAILLMChatMessage } from './sendLLMMessageTypes.js';
 import { ProviderName } from './voidSettingsTypes.js';
 
-/**
- * Converts base64 encoded string to VSBuffer
- */
-function base64ToVSBuffer(base64: string): VSBuffer {
-	// Remove data URL prefix if present
-	const base64Data = base64.includes(',') ? base64.split(',')[1] : base64;
-	// Convert base64 to binary string
-	const binaryString = atob(base64Data);
-	// Create array buffer from binary string
-	const bytes = new Uint8Array(binaryString.length);
-	for (let i = 0; i < binaryString.length; i++) {
-		bytes[i] = binaryString.charCodeAt(i);
-	}
-	return VSBuffer.wrap(bytes);
-}
+
 
 /**
  * Converts VSBuffer to base64 encoded string
@@ -51,7 +37,7 @@ export function formatImageForProvider(
 	const base64Data = vsBufferToBase64(image.data, mimeTypeStr);
 
 	switch (providerName) {
-		case 'openai':
+		case 'openAI':
 			return {
 				content: [{
 					type: 'image_url',
@@ -102,7 +88,7 @@ export function createContentWithImages(
 	}
 
 	switch (providerName) {
-		case 'openai': {
+		case 'openAI': {
 			const content: OpenAILLMChatMessage['content'] = [];
 
 			// Add images first

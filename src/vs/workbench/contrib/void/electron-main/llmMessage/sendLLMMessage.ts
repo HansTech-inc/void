@@ -5,8 +5,8 @@
 
 import { SendLLMMessageParams, OnText, OnFinalMessage, OnError } from '../../common/sendLLMMessageTypes.js';
 import { IMetricsService } from '../../common/metricsService.js';
-import { displayInfoOfProviderName } from '../../common/voidSettingsTypes.js';
 import { sendLLMMessageToProviderImplementation } from './sendLLMMessage.impl.js';
+import { displayInfoOfProviderName } from '../../common/voidSettingsTypes.js';
 
 
 export const sendLLMMessage = async ({

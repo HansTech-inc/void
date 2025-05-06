@@ -10,7 +10,7 @@ import { ILogService } from '../../../../platform/log/common/log.js';
 import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
 import { IFileService } from '../../../../platform/files/common/files.js';
 import { IStorageService, StorageScope, StorageTarget } from '../../../../platform/storage/common/storage.js';
-import { IWebSearchService, WebSearchResult, WebSearchOptions, CaptureOptions } from '../../common/webSearchService.js';
+import { IWebSearchService, WebSearchResult, WebSearchOptions, CaptureOptions } from '../../common/webSearchService';
 import { generateUuid } from '../../../../base/common/uuid.js';
 
 export class WebSearchService extends Disposable implements IWebSearchService {

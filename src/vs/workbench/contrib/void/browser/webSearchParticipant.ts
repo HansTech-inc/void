@@ -6,8 +6,8 @@
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { localize } from '../../../../nls.js';
 import { ILogService } from '../../../../platform/log/common/log.js';
-import { IChatRequestContext, IChatResponse, IChatResponseFragment } from '../../../common/chat.js';
-import { IChatParticipant } from '../../../common/chatParticipant.js';
+import { IChatRequestContext, IChatResponse, IChatResponseFragment } from '../../../common/chat';
+import { IChatParticipant } from '../../../common/chatParticipant';
 import { IChatAgentService } from '../../chat/common/chatAgents.js';
 import { IWebSearchService, WebSearchResult } from '../common/webSearchService.js';
 import { ISmartSearchService, SearchResult } from '../common/smartSearchService.js';

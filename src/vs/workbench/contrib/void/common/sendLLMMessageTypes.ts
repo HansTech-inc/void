@@ -36,18 +36,28 @@ export type AnthropicLLMChatMessage = {
 	)[];
 } | {
 	role: 'user',
-	content: string | (
-		{ type: 'text'; text: string; } |
-		{ type: 'tool_result'; tool_use_id: string; content: string; } |
-		{ type: 'image'; source: { type: 'base64'; media_type: string; data: string; } }
-	)[]
+	content: string | (AnthropicContentBlock)[]
 }
+
+export type SupportedImageMimeType = 'image/png' | 'image/jpeg' | 'image/gif' | 'image/webp'
+export type BaseImageSource = { type: 'base64'; media_type: SupportedImageMimeType; data: string; }
+export type BaseImageBlock = { type: 'image'; source: BaseImageSource }
+
+export type AnthropicImageSource = BaseImageSource
+export type AnthropicImageBlock = BaseImageBlock
+export type AnthropicTextBlock = { type: 'text'; text: string }
+export type AnthropicToolResultBlock = { type: 'tool_result'; tool_use_id: string; content: string }
+export type AnthropicToolUseBlock = { type: 'tool_use'; name: string; input: Record<string, any>; id: string; }
+export type AnthropicReasoningBlock = { type: 'thinking'; thinking: any; signature: string; } | { type: 'redacted_thinking', data: any }
+
+export type AnthropicContentBlock = AnthropicTextBlock | AnthropicImageBlock | AnthropicToolResultBlock | AnthropicReasoningBlock | AnthropicToolUseBlock;
+
+export type ContentBlockParam = { type: 'text'; text: string } | BaseImageBlock;
+
+
 export type OpenAILLMChatMessage = {
 	role: 'system' | 'user' | 'developer';
-	content: string | (
-		{ type: 'text'; text: string; } |
-		{ type: 'image_url'; image_url: { url: string; detail?: 'low' | 'high' } }
-	)[];
+	content: string | ContentBlockParam[];
 } | {
 	role: 'assistant',
 	content: string | (AnthropicReasoning | { type: 'text'; text: string })[];
