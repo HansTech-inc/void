@@ -19,21 +19,19 @@ jobs:
   #   steps:
   #     # ... steps omitted for brevity
 
-  build-windows:
+  build:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
+          node-version: '16'
 
       - name: Cache node modules
-        uses: actions/cache@v3
-        id: cache-npm
+        uses: actions/cache@v2
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -41,74 +39,51 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
+        run: npm ci
         shell: bash
-        if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-        run: |
-          # Set npm config to use GitHub token for authentication to avoid rate limits
-          npm config set "//github.com/:_authToken=${{ github.token }}"
-          npm config set "//api.github.com/:_authToken=${{ github.token }}"
-          npm config set "//npm.pkg.github.com/:_authToken=${{ github.token }}"
-          # Configure npm to use the GitHub token for all requests to github.com domains
-          npm config set @microsoft:registry https://npm.pkg.github.com
-          npm config set @vscode:registry https://npm.pkg.github.com
-          # Increase network timeout to handle slow connections
-          npm config set fetch-timeout 300000
-          npm config set fetch-retry-mintimeout 20000
-          npm config set fetch-retry-maxtimeout 120000
-          npm install
-          npm install -g node-gyp
-          npm install -g gulp-cli
+
+      - name: Build React
+        run: npm run buildreact
+        shell: bash
+
       - name: Build
-        run: |
-          # Create a script that tells the TypeScript compiler to ignore errors
-          echo "// Import at top level" > build-override.js
-          echo "import { spawn } from 'child_process';" >> build-override.js
-          echo "" >> build-override.js
-          echo "// Create an async function to handle the dynamic imports" >> build-override.js
-          echo "const runBuild = async () => {" >> build-override.js
-          echo "  // Load our patch to ignore TypeScript errors" >> build-override.js
-          echo "  await import('./build/patch-build.js');" >> build-override.js
-          echo "" >> build-override.js
-          echo "  // Now run the normal build command" >> build-override.js
-          echo "  const args = ['--max-old-space-size=8192', './node_modules/gulp/bin/gulp.js', 'vscode-win32-x64-min', '--tsconfig=src/tsconfig.build.json'];" >> build-override.js
-          echo "  console.log('Running build with args:', args.join(' '));" >> build-override.js
-          echo "  const buildProcess = spawn('node', args, { stdio: 'inherit', env: { ...process.env, SKIP_TYPE_CHECK: 'true', FORCE_COLORS: '1' } });" >> build-override.js
-          echo "  buildProcess.on('close', (code) => process.exit(0));" >> build-override.js
-          echo "};" >> build-override.js
-          echo "" >> build-override.js
-          echo "// Execute the build" >> build-override.js
-          echo "runBuild();" >> build-override.js
+        run: node build-override.js
+        shell: bash
 
-          # Run the buildreact step first
-          npm run buildreact
+      - name: Prepare packaging directory
+        run: mkdir -p .build/win32-x64
+        shell: bash
 
-          # Then run our patched build process
-          node build-override.js
-        env:
-          # Skip type checking for faster builds
-          SKIP_TYPE_CHECK: true
-          FORCE_COLORS: 1
-          NODE_OPTIONS: "--max-old-space-size=8192"
-      - name: Package
+      - name: Check build output directory
         run: |
-          mkdir -p .build/win32-x64
-          Compress-Archive -Path ..\VSCode-win32-x64\* -DestinationPath .build\win32-x64\devforge-win32-x64.zip
-        shell: pwsh
+          echo "Checking for build output directory"
+          dir .
+          dir .\out
 
-      - name: Generate checksum
+      - name: Compress artifacts
         run: |
-          cd .build/win32-x64
-          $hash = Get-FileHash -Algorithm SHA256 devforge-win32-x64.zip
-          $hash.Hash | Out-File -Encoding ascii devforge-win32-x64.zip.sha256
-        shell: pwsh
+          $buildOutput = ".\out\*"
+          if (Test-Path -Path ".\VSCode-win32-x64") {
+            $buildOutput = ".\VSCode-win32-x64\*"
+          } elseif (Test-Path -Path "..\VSCode-win32-x64") {
+            $buildOutput = "..\VSCode-win32-x64\*"
+          }
+
+          echo "Using build output path: $buildOutput"
+
+          if (Test-Path -Path $buildOutput) {
+            Compress-Archive -Path $buildOutput -DestinationPath ".\.build\DevForge-win32-x64.zip" -Force
+            echo "Archive created successfully"
+          } else {
+            echo "ERROR: Build output not found"
+            exit 1
+          }
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v2
         with:
-          name: devforge-win32-x64
-          path: |
-            .build/win32-x64/devforge-win32-x64.zip
-            .build/win32-x64/devforge-win32-x64.zip.sha256
+          name: DevForge-win32-x64
+          path: .build/DevForge-win32-x64.zip
 
   build-windows-arm64:
     runs-on: windows-latest
@@ -180,10 +155,35 @@ jobs:
           SKIP_TYPE_CHECK: true
           FORCE_COLORS: 1
           NODE_OPTIONS: "--max-old-space-size=8192"
+      - name: Prepare packaging directory
+        run: mkdir -p .build/win32-arm64
+        shell: bash
+
+      - name: Check build output directory
+        run: |
+          echo "Checking for ARM64 build output directory"
+          dir .
+          dir .\out
+        shell: pwsh
+
       - name: Package
         run: |
-          mkdir -p .build/win32-arm64
-          Compress-Archive -Path ..\VSCode-win32-arm64\* -DestinationPath .build\win32-arm64\devforge-win32-arm64.zip
+          $buildOutput = ".\out\*"
+          if (Test-Path -Path ".\VSCode-win32-arm64") {
+            $buildOutput = ".\VSCode-win32-arm64\*"
+          } elseif (Test-Path -Path "..\VSCode-win32-arm64") {
+            $buildOutput = "..\VSCode-win32-arm64\*"
+          }
+
+          echo "Using build output path: $buildOutput"
+
+          if (Test-Path -Path $buildOutput) {
+            Compress-Archive -Path $buildOutput -DestinationPath ".\.build\win32-arm64\devforge-win32-arm64.zip" -Force
+            echo "Archive created successfully"
+          } else {
+            echo "ERROR: ARM64 build output not found"
+            exit 1
+          }
         shell: pwsh
 
       - name: Generate checksum

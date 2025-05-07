@@ -29,7 +29,7 @@ Object.values(approvalTypeOfToolName).filter((v): v is ToolApprovalType => v !==
 )
 
 // PARAMS OF TOOL CALL
-export type ToolCallParams = {
+export interface ToolCallParams {
 'read_file': {
     uri: URI,
     startLine: number | null,
@@ -53,10 +53,16 @@ export type ToolCallParams = {
 'open_persistent_terminal': { cwd: string | null },
 'run_persistent_command': { command: string; persistentTerminalId: string },
 'kill_persistent_terminal': { persistentTerminalId: string },
+'web_search': {
+    query: string;
+    searchType?: string;
+    language?: string;
+    limit?: number;
+},
 }
 
 // RESULT OF TOOL CALL
-export type ToolResultType = {
+export interface ToolResultType {
 'read_file': {
     fileContents: string,
     totalFileLen: number,
@@ -80,4 +86,14 @@ export type ToolResultType = {
 'run_persistent_command': { result: string; resolveReason: TerminalResolveReason; },
 'open_persistent_terminal': { persistentTerminalId: string },
 'kill_persistent_terminal': {},
+'web_search': Array<{
+    type: 'text' | 'image' | 'code' | 'structured';
+    content: any;
+    metadata: {
+        url: string;
+        timestamp: number;
+        context: string;
+    };
+    toString(): string;
+}>,
 }

@@ -19,6 +19,7 @@ import { RawToolParamsObj } from '../common/sendLLMMessageTypes.js'
 import { MAX_CHILDREN_URIs_PAGE, MAX_FILE_CHARS_PAGE, MAX_TERMINAL_BG_COMMAND_TIME, MAX_TERMINAL_INACTIVE_TIME, ToolName } from '../common/prompt/prompts.js'
 import { IVoidSettingsService } from '../common/voidSettingsService.js'
 import { generateUuid } from '../../../../base/common/uuid.js'
+import { IWebSearchService, WebSearchOptions } from '../common/webSearchService.js'
 
 
 // tool use for AI
@@ -138,6 +139,7 @@ export class ToolsService implements IToolsService {
 		@IDirectoryStrService private readonly directoryStrService: IDirectoryStrService,
 		@IMarkerService private readonly markerService: IMarkerService,
 		@IVoidSettingsService private readonly voidSettingsService: IVoidSettingsService,
+		@IWebSearchService private readonly webSearchService: IWebSearchService,
 	) {
 
 		const queryBuilder = instantiationService.createInstance(QueryBuilder);
@@ -274,6 +276,15 @@ export class ToolsService implements IToolsService {
 				const { persistent_terminal_id: terminalIdUnknown } = params;
 				const persistentTerminalId = validateProposedTerminalId(terminalIdUnknown);
 				return { persistentTerminalId };
+			},
+
+			web_search: ({ query, search_type, language, limit }) => {
+				return {
+					query: typeof query === 'string' ? query : '',
+					searchType: typeof search_type === 'string' ? search_type : undefined,
+					language: typeof language === 'string' ? language : undefined,
+					limit: typeof limit === 'number' ? limit : undefined
+				}
 			},
 
 		}
@@ -446,6 +457,17 @@ export class ToolsService implements IToolsService {
 				return { result: {} }
 			},
 
+			web_search: async ({ query, searchType, language, limit }) => {
+				return await this.webSearchService.search(
+					query,
+					{
+						searchType: searchType as WebSearchOptions['searchType'],
+						language,
+						limit
+					}
+				) as ToolResultType['web_search']
+			},
+
 		}
 
 
@@ -548,6 +570,10 @@ export class ToolsService implements IToolsService {
 			},
 			kill_persistent_terminal: (params, _result) => {
 				return `Successfully closed terminal "${params.persistentTerminalId}".`;
+			},
+
+			web_search: (params, result) => {
+				return result.map(r => r.toString()).join('\n');
 			},
 
 		}

@@ -274,6 +274,17 @@ export const voidTools
 			},
 		},
 
+		web_search: {
+			name: 'web_search',
+			description: `Search the web for real-time information about programming, technologies, or coding-related topics. Returns relevant search results with snippets and sources.`,
+			params: {
+				query: { description: 'The search query to look up on the web. Be specific for better results.' },
+				search_type: { description: 'Optional. The type of search to perform. Can be "docs", "stackoverflow", "github", "npm", or "all". Defaults to "all".' },
+				language: { description: 'Optional. Filter results by programming language.' },
+				limit: { description: 'Optional. Maximum number of results to return. Defaults to 10.' }
+			},
+		},
+
 		// --- editing (create/delete) ---
 
 		create_file_or_folder: {
