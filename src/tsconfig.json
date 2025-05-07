@@ -8,8 +8,6 @@
 		"allowJs": true,
 		"resolveJsonModule": true,
 		"isolatedModules": false,
-		"jsx": "react-jsx",
-		"jsxImportSource": "react",
 		"outDir": "../out/vs",
 		"types": [
 			"@webgpu/types",
@@ -29,10 +27,8 @@
 	},
 	"include": [
 		"./*.ts",
-		"./*.tsx",
 		"./typings",
 		"./vs/**/*.ts",
-		"./vs/**/*.tsx",
 		"./vscode-dts/vscode.proposed.*.d.ts",
 		"./vscode-dts/vscode.d.ts"
 	]

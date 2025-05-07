@@ -6,8 +6,8 @@
 	"dataFolderName": ".devforge-ide",
 	"win32MutexName": "devforgeeditor",
 	"licenseName": "MIT",
-	"licenseUrl": "https://github.com/HansTech-inc/void/blob/main/LICENSE.txt",
-	"serverLicenseUrl": "https://github.com/HansTech-inc/void/blob/main/LICENSE.txt",
+	"licenseUrl": "https://github.com/voideditor/void/blob/main/LICENSE.txt",
+	"serverLicenseUrl": "https://github.com/voideditor/void/blob/main/LICENSE.txt",
 	"serverGreeting": [],
 	"serverLicense": [],
 	"serverLicensePrompt": "",
@@ -28,7 +28,7 @@
 	"darwinBundleIdentifier": "com.devforgeeditor.code",
 	"linuxIconName": "devforge-editor",
 	"licenseFileName": "LICENSE.txt",
-	"reportIssueUrl": "https://github.com/HansTech-inc/void/issues/new",
+	"reportIssueUrl": "https://github.com/voideditor/void/issues/new",
 	"nodejsRepository": "https://nodejs.org",
 	"urlProtocol": "devforge",
 	"extensionsGallery": {
@@ -37,7 +37,9 @@
 	},
 	"builtInExtensions": [],
 	"linkProtectionTrustedDomains": [
-	"https://voideditor.com/",
-	"https://voideditor.dev"
+		"https://voideditor.com",
+		"https://voideditor.dev",
+		"https://github.com/voideditor/void",
+		"https://ollama.com"
 	]
 }
