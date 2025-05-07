@@ -61,15 +61,23 @@ jobs:
       - name: Build
         run: |
           # Create a script that tells the TypeScript compiler to ignore errors
-          echo "// Load our patch to ignore TypeScript errors" > build-override.js
-          echo "require('./build/patch-build.js');" >> build-override.js
+          echo "// Import at top level" > build-override.js
+          echo "import { spawn } from 'child_process';" >> build-override.js
           echo "" >> build-override.js
-          echo "// Now run the normal build command" >> build-override.js
-          echo "const { spawn } = require('child_process');" >> build-override.js
-          echo "const args = ['--max-old-space-size=8192', './node_modules/gulp/bin/gulp.js', 'vscode-win32-x64-min', '--tsconfig=src/tsconfig.build.json'];" >> build-override.js
-          echo "console.log('Running build with args:', args.join(' '));" >> build-override.js
-          echo "const buildProcess = spawn('node', args, { stdio: 'inherit', env: { ...process.env, SKIP_TYPE_CHECK: 'true', FORCE_COLORS: '1' } });" >> build-override.js
-          echo "buildProcess.on('close', (code) => process.exit(0));" >> build-override.js
+          echo "// Create an async function to handle the dynamic imports" >> build-override.js
+          echo "const runBuild = async () => {" >> build-override.js
+          echo "  // Load our patch to ignore TypeScript errors" >> build-override.js
+          echo "  await import('./build/patch-build.js');" >> build-override.js
+          echo "" >> build-override.js
+          echo "  // Now run the normal build command" >> build-override.js
+          echo "  const args = ['--max-old-space-size=8192', './node_modules/gulp/bin/gulp.js', 'vscode-win32-x64-min', '--tsconfig=src/tsconfig.build.json'];" >> build-override.js
+          echo "  console.log('Running build with args:', args.join(' '));" >> build-override.js
+          echo "  const buildProcess = spawn('node', args, { stdio: 'inherit', env: { ...process.env, SKIP_TYPE_CHECK: 'true', FORCE_COLORS: '1' } });" >> build-override.js
+          echo "  buildProcess.on('close', (code) => process.exit(0));" >> build-override.js
+          echo "};" >> build-override.js
+          echo "" >> build-override.js
+          echo "// Execute the build" >> build-override.js
+          echo "runBuild();" >> build-override.js
 
           # Run the buildreact step first
           npm run buildreact
@@ -144,15 +152,23 @@ jobs:
       - name: Build
         run: |
           # Create a script that tells the TypeScript compiler to ignore errors
-          echo "// Load our patch to ignore TypeScript errors" > build-override.js
-          echo "require('./build/patch-build.js');" >> build-override.js
+          echo "// Import at top level" > build-override.js
+          echo "import { spawn } from 'child_process';" >> build-override.js
           echo "" >> build-override.js
-          echo "// Now run the normal build command" >> build-override.js
-          echo "const { spawn } = require('child_process');" >> build-override.js
-          echo "const args = ['--max-old-space-size=8192', './node_modules/gulp/bin/gulp.js', 'vscode-win32-arm64-min', '--tsconfig=src/tsconfig.build.json'];" >> build-override.js
-          echo "console.log('Running build with args:', args.join(' '));" >> build-override.js
-          echo "const buildProcess = spawn('node', args, { stdio: 'inherit', env: { ...process.env, SKIP_TYPE_CHECK: 'true', FORCE_COLORS: '1' } });" >> build-override.js
-          echo "buildProcess.on('close', (code) => process.exit(0));" >> build-override.js
+          echo "// Create an async function to handle the dynamic imports" >> build-override.js
+          echo "const runBuild = async () => {" >> build-override.js
+          echo "  // Load our patch to ignore TypeScript errors" >> build-override.js
+          echo "  await import('./build/patch-build.js');" >> build-override.js
+          echo "" >> build-override.js
+          echo "  // Now run the normal build command" >> build-override.js
+          echo "  const args = ['--max-old-space-size=8192', './node_modules/gulp/bin/gulp.js', 'vscode-win32-arm64-min', '--tsconfig=src/tsconfig.build.json'];" >> build-override.js
+          echo "  console.log('Running build with args:', args.join(' '));" >> build-override.js
+          echo "  const buildProcess = spawn('node', args, { stdio: 'inherit', env: { ...process.env, SKIP_TYPE_CHECK: 'true', FORCE_COLORS: '1' } });" >> build-override.js
+          echo "  buildProcess.on('close', (code) => process.exit(0));" >> build-override.js
+          echo "};" >> build-override.js
+          echo "" >> build-override.js
+          echo "// Execute the build" >> build-override.js
+          echo "runBuild();" >> build-override.js
 
           # Run the buildreact step first
           npm run buildreact
