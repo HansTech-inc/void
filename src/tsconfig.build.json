@@ -1,0 +1,28 @@
+{
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"strict": false,
+		"noImplicitAny": false,
+		"skipLibCheck": true,
+		"skipDefaultLibCheck": true,
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"jsx": "react-jsx",
+		"jsxImportSource": "react",
+		"allowJs": true,
+		"checkJs": false,
+		"moduleResolution": "nodenext",
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"isolatedModules": false
+	},
+	"include": [
+		"./*.ts",
+		"./*.tsx",
+		"./typings",
+		"./vs/**/*.ts",
+		"./vs/**/*.tsx",
+		"./vscode-dts/vscode.proposed.*.d.ts",
+		"./vscode-dts/vscode.d.ts"
+	]
+}
