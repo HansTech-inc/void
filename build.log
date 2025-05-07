@@ -1,4 +1,21 @@
+Create out Directory Run # Create main out directory and all required subdirectories
+    Directory: D:\a\void\void
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----            5/7/2025  3:38 AM                out
+    Directory: D:\a\void\void\out
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----            5/7/2025  3:38 AM                diff
+d----            5/7/2025  3:38 AM                quick-edit-tsx
+d----            5/7/2025  3:38 AM                sidebar-tsx
+d----            5/7/2025  3:38 AM                void-editor-widgets-tsx
+d----            5/7/2025  3:38 AM                void-onboarding
+d----            5/7/2025  3:38 AM                void-settings-tsx
+d----            5/7/2025  3:38 AM                void-tooltip
+Build React Componenets
 Run # Add ts-nocheck to TypeScript files in both src and src2
+
 
 > code-oss-dev@1.99.3 buildreact
 > cd ./src/vs/workbench/contrib/void/browser/react/ && node build.js --skipTypeCheck && cd ../../../../../../../ --skipTypeCheck --tsconfig tsconfig.build.json
@@ -103,13 +120,13 @@ ESM Build start
 "acceptAllBg", "acceptBorder", "rejectAllBg" and "rejectBorder" are imported from external module "../../../../common/helpers/colors.js" but never used in "out/void-settings-tsx/index.js".
 "MAX_FILE_CHARS_PAGE" and "toolNames" are imported from external module "../../../../common/prompt/prompts.js" but never used in "out/void-settings-tsx/index.js".
 ESM out\diff\index.js                    18.36 KB
-ESM out\void-settings-tsx\index.js       1.19 MB
 ESM out\void-tooltip\index.js            1.11 MB
-ESM out\void-editor-widgets-tsx\index.js 1.20 MB
+ESM out\void-settings-tsx\index.js       1.19 MB
 ESM out\quick-edit-tsx\index.js          1.13 MB
-ESM out\sidebar-tsx\index.js             1.35 MB
+ESM out\void-editor-widgets-tsx\index.js 1.20 MB
 ESM out\void-onboarding\index.js         1.19 MB
-ESM ⚡️ Build success in 6314ms
+ESM out\sidebar-tsx\index.js             1.35 MB
+ESM ⚡️ Build success in 6118ms
 ✅ Build complete!
 The system cannot find the path specified.
 Error: Process completed with exit code 1.
