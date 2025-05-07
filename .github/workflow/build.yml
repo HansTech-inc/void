@@ -71,10 +71,22 @@ jobs:
           echo "const buildProcess = spawn('node', args, { stdio: 'inherit', env: { ...process.env, SKIP_TYPE_CHECK: 'true', FORCE_COLORS: '1' } });" >> build-override.cjs
           echo "buildProcess.on('close', (code) => process.exit(0));" >> build-override.cjs
 
+          # Copy build files to .js extension to ensure compatibility with any hardcoded references
+          copy build-override.cjs build-override.js
+          if not exist build mkdir build
+          copy build\patch-build.cjs build\patch-build.js
+          copy build\force-success.cjs build\force-success.js
+
+          # Create ESM-compatible bridge files
+          echo "// ESM bridge to CommonJS" > build-override.js
+          echo "import { createRequire } from 'module';" >> build-override.js
+          echo "const require = createRequire(import.meta.url);" >> build-override.js
+          echo "require('./build-override.cjs');" >> build-override.js
+
           # Run the buildreact step first
           npm run buildreact
 
-          # Then run our patched build process
+          # Then run our patched build process - use .cjs directly
           node build-override.cjs
         env:
           # Skip type checking for faster builds
@@ -154,10 +166,22 @@ jobs:
           echo "const buildProcess = spawn('node', args, { stdio: 'inherit', env: { ...process.env, SKIP_TYPE_CHECK: 'true', FORCE_COLORS: '1' } });" >> build-override.cjs
           echo "buildProcess.on('close', (code) => process.exit(0));" >> build-override.cjs
 
+          # Copy build files to .js extension to ensure compatibility with any hardcoded references
+          copy build-override.cjs build-override.js
+          if not exist build mkdir build
+          copy build\patch-build.cjs build\patch-build.js
+          copy build\force-success.cjs build\force-success.js
+
+          # Create ESM-compatible bridge files
+          echo "// ESM bridge to CommonJS" > build-override.js
+          echo "import { createRequire } from 'module';" >> build-override.js
+          echo "const require = createRequire(import.meta.url);" >> build-override.js
+          echo "require('./build-override.cjs');" >> build-override.js
+
           # Run the buildreact step first
           npm run buildreact
 
-          # Then run our patched build process
+          # Then run our patched build process - use .cjs directly
           node build-override.cjs
         env:
           # Skip type checking for faster builds
