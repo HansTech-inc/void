@@ -8,7 +8,10 @@
  * Used by the gulp tasks when we want to force a successful build despite TypeScript errors.
  */
 
-import through from 'through';
+// Use createRequire to import CommonJS modules
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const through = require('through');
 
 /**
  * Create a reporter for gulp-typescript that ignores all errors
