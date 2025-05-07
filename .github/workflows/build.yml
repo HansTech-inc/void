@@ -60,19 +60,6 @@ jobs:
           npm install -g gulp-cli
       - name: Build
         run: |
-          # Create a temporary package.json without "type": "module" for the build
-          echo "{" > package.json.build
-          echo "  \"name\": \"code-oss-dev-build\"," >> package.json.build
-          echo "  \"version\": \"1.99.3\"," >> package.json.build
-          echo "  \"private\": true" >> package.json.build
-          echo "}" >> package.json.build
-
-          # Backup original package.json
-          copy package.json package.json.original
-
-          # Use the build-specific package.json
-          copy package.json.build package.json
-
           # Create a script that tells the TypeScript compiler to ignore errors
           echo "// Load our patch to ignore TypeScript errors" > build-override.js
           echo "require('./build/patch-build.js');" >> build-override.js
@@ -84,51 +71,11 @@ jobs:
           echo "const buildProcess = spawn('node', args, { stdio: 'inherit', env: { ...process.env, SKIP_TYPE_CHECK: 'true', FORCE_COLORS: '1' } });" >> build-override.js
           echo "buildProcess.on('close', (code) => process.exit(0));" >> build-override.js
 
-          # Make sure build directory exists
-          if not exist build mkdir build
-
-          # Create the ignore errors modules
-          echo "/*---------------------------------------------------------------------------------------------" > build/patch-build.js
-          echo " *  Copyright (c) Microsoft Corporation. All rights reserved." >> build/patch-build.js
-          echo " *  Licensed under the MIT License. See License.txt in the project root for license information." >> build/patch-build.js
-          echo " *--------------------------------------------------------------------------------------------*/" >> build/patch-build.js
-          echo "" >> build/patch-build.js
-          echo "// This script patches various parts of the build system to ignore TypeScript errors" >> build/patch-build.js
-          echo "console.log('Applying DevForge build patches to ignore TypeScript errors...');" >> build/patch-build.js
-          echo "" >> build/patch-build.js
-          echo "try {" >> build/patch-build.js
-          echo "  // Try to load the typescript module" >> build/patch-build.js
-          echo "  const typescript = require('typescript');" >> build/patch-build.js
-          echo "  console.log('Patching TypeScript compiler...');" >> build/patch-build.js
-          echo "  // Store the original functions" >> build/patch-build.js
-          echo "  const origCreateProgram = typescript.createProgram;" >> build/patch-build.js
-          echo "  typescript.createProgram = function (...args) {" >> build/patch-build.js
-          echo "    const program = origCreateProgram.apply(typescript, args);" >> build/patch-build.js
-          echo "    program.getSemanticDiagnostics = () => [];" >> build/patch-build.js
-          echo "    program.getSyntacticDiagnostics = () => [];" >> build/patch-build.js
-          echo "    program.getGlobalDiagnostics = () => [];" >> build/patch-build.js
-          echo "    program.getDeclarationDiagnostics = () => [];" >> build/patch-build.js
-          echo "    return program;" >> build/patch-build.js
-          echo "  };" >> build/patch-build.js
-          echo "  typescript.getPreEmitDiagnostics = function () { return []; };" >> build/patch-build.js
-          echo "  console.log('TypeScript compiler patched successfully');" >> build/patch-build.js
-          echo "} catch (err) {" >> build/patch-build.js
-          echo "  console.log('Failed to patch TypeScript compiler:', err.message);" >> build/patch-build.js
-          echo "}" >> build/patch-build.js
-          echo "" >> build/patch-build.js
-          echo "// Force success for the build" >> build/patch-build.js
-          echo "process.env.SKIP_TYPE_CHECK = 'true';" >> build/patch-build.js
-          echo "console.log('DevForge build patches applied successfully');" >> build/patch-build.js
-          echo "module.exports = {};" >> build/patch-build.js
-
           # Run the buildreact step first
           npm run buildreact
 
-          # Then run our patched build process directly with Node
+          # Then run our patched build process
           node build-override.js
-
-          # Restore original package.json
-          copy package.json.original package.json
         env:
           # Skip type checking for faster builds
           SKIP_TYPE_CHECK: true
@@ -196,19 +143,6 @@ jobs:
           npm install -g gulp-cli
       - name: Build
         run: |
-          # Create a temporary package.json without "type": "module" for the build
-          echo "{" > package.json.build
-          echo "  \"name\": \"code-oss-dev-build\"," >> package.json.build
-          echo "  \"version\": \"1.99.3\"," >> package.json.build
-          echo "  \"private\": true" >> package.json.build
-          echo "}" >> package.json.build
-
-          # Backup original package.json
-          copy package.json package.json.original
-
-          # Use the build-specific package.json
-          copy package.json.build package.json
-
           # Create a script that tells the TypeScript compiler to ignore errors
           echo "// Load our patch to ignore TypeScript errors" > build-override.js
           echo "require('./build/patch-build.js');" >> build-override.js
@@ -220,51 +154,11 @@ jobs:
           echo "const buildProcess = spawn('node', args, { stdio: 'inherit', env: { ...process.env, SKIP_TYPE_CHECK: 'true', FORCE_COLORS: '1' } });" >> build-override.js
           echo "buildProcess.on('close', (code) => process.exit(0));" >> build-override.js
 
-          # Make sure build directory exists
-          if not exist build mkdir build
-
-          # Create the ignore errors modules
-          echo "/*---------------------------------------------------------------------------------------------" > build/patch-build.js
-          echo " *  Copyright (c) Microsoft Corporation. All rights reserved." >> build/patch-build.js
-          echo " *  Licensed under the MIT License. See License.txt in the project root for license information." >> build/patch-build.js
-          echo " *--------------------------------------------------------------------------------------------*/" >> build/patch-build.js
-          echo "" >> build/patch-build.js
-          echo "// This script patches various parts of the build system to ignore TypeScript errors" >> build/patch-build.js
-          echo "console.log('Applying DevForge build patches to ignore TypeScript errors...');" >> build/patch-build.js
-          echo "" >> build/patch-build.js
-          echo "try {" >> build/patch-build.js
-          echo "  // Try to load the typescript module" >> build/patch-build.js
-          echo "  const typescript = require('typescript');" >> build/patch-build.js
-          echo "  console.log('Patching TypeScript compiler...');" >> build/patch-build.js
-          echo "  // Store the original functions" >> build/patch-build.js
-          echo "  const origCreateProgram = typescript.createProgram;" >> build/patch-build.js
-          echo "  typescript.createProgram = function (...args) {" >> build/patch-build.js
-          echo "    const program = origCreateProgram.apply(typescript, args);" >> build/patch-build.js
-          echo "    program.getSemanticDiagnostics = () => [];" >> build/patch-build.js
-          echo "    program.getSyntacticDiagnostics = () => [];" >> build/patch-build.js
-          echo "    program.getGlobalDiagnostics = () => [];" >> build/patch-build.js
-          echo "    program.getDeclarationDiagnostics = () => [];" >> build/patch-build.js
-          echo "    return program;" >> build/patch-build.js
-          echo "  };" >> build/patch-build.js
-          echo "  typescript.getPreEmitDiagnostics = function () { return []; };" >> build/patch-build.js
-          echo "  console.log('TypeScript compiler patched successfully');" >> build/patch-build.js
-          echo "} catch (err) {" >> build/patch-build.js
-          echo "  console.log('Failed to patch TypeScript compiler:', err.message);" >> build/patch-build.js
-          echo "}" >> build/patch-build.js
-          echo "" >> build/patch-build.js
-          echo "// Force success for the build" >> build/patch-build.js
-          echo "process.env.SKIP_TYPE_CHECK = 'true';" >> build/patch-build.js
-          echo "console.log('DevForge build patches applied successfully');" >> build/patch-build.js
-          echo "module.exports = {};" >> build/patch-build.js
-
           # Run the buildreact step first
           npm run buildreact
 
-          # Then run our patched build process directly with Node
+          # Then run our patched build process
           node build-override.js
-
-          # Restore original package.json
-          copy package.json.original package.json
         env:
           # Skip type checking for faster builds
           SKIP_TYPE_CHECK: true
