@@ -44,7 +44,7 @@ try {
 
 try {
 	// Try to patch the gulp-typescript module
-	const forceSuccess = require('./force-success');
+	const forceSuccess = require('./force-success.cjs');
 
 	// Find the gulp-typescript module by traversing node_modules
 	console.log('Attempting to patch gulp-typescript...');

@@ -1,5 +1,5 @@
 // Load our patch to ignore TypeScript errors
-require('./build/patch-build.js');
+require('./build/patch-build.cjs');
 
 // Now run the normal build command
 const { spawn } = require('child_process');
