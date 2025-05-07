@@ -102,6 +102,19 @@ jobs:
           npm install -g gulp-cli
         shell: pwsh
 
+      - name: Create output directories
+        run: |
+          # Create main out directory and all required subdirectories
+          if (-not (Test-Path -Path "out")) {
+            New-Item -Path "out" -ItemType Directory -Force
+          }
+          foreach ($dir in @('diff', 'quick-edit-tsx', 'sidebar-tsx', 'void-editor-widgets-tsx', 'void-onboarding', 'void-settings-tsx', 'void-tooltip')) {
+            $fullPath = "out\$dir"
+            if (-not (Test-Path -Path $fullPath)) {
+              New-Item -Path $fullPath -ItemType Directory -Force
+            }
+          }
+
       - name: Build React Components
         run: |
           # Add ts-nocheck to TypeScript files in both src and src2
@@ -285,6 +298,19 @@ jobs:
           npm install -g gulp-cli
         shell: pwsh
 
+      - name: Create output directories
+        run: |
+          # Create main out directory and all required subdirectories
+          if (-not (Test-Path -Path "out")) {
+            New-Item -Path "out" -ItemType Directory -Force
+          }
+          foreach ($dir in @('diff', 'quick-edit-tsx', 'sidebar-tsx', 'void-editor-widgets-tsx', 'void-onboarding', 'void-settings-tsx', 'void-tooltip')) {
+            $fullPath = "out\$dir"
+            if (-not (Test-Path -Path $fullPath)) {
+              New-Item -Path $fullPath -ItemType Directory -Force
+            }
+          }
+
       - name: Build React Components
         run: |
           # Add ts-nocheck to TypeScript files in both src and src2
@@ -403,6 +429,14 @@ jobs:
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
+
+      - name: Create output directories
+        run: |
+          # Create main out directory and all required subdirectories
+          mkdir -p out
+          for dir in diff quick-edit-tsx sidebar-tsx void-editor-widgets-tsx void-onboarding void-settings-tsx void-tooltip; do
+            mkdir -p "out/$dir"
+          done
       - name: Direct fix for electron.js
         run: |
           # Create parent directory if it doesn't exist
@@ -515,6 +549,14 @@ jobs:
           npm install
           npm install -g node-gyp
           npm install -g gulp-cli
+
+      - name: Create output directories
+        run: |
+          # Create main out directory and all required subdirectories
+          mkdir -p out
+          for dir in diff quick-edit-tsx sidebar-tsx void-editor-widgets-tsx void-onboarding void-settings-tsx void-tooltip; do
+            mkdir -p "out/$dir"
+          done
       - name: Direct fix for electron.js
         run: |
           # Create parent directory if it doesn't exist
