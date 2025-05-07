@@ -8,12 +8,12 @@
  * Used by the gulp tasks when we want to force a successful build despite TypeScript errors.
  */
 
-const through = require('through');
+import through from 'through';
 
 /**
  * Create a reporter for gulp-typescript that ignores all errors
  */
-function createSuccessReporter() {
+export function createSuccessReporter() {
 	return {
 		error(error) {
 			// Log errors but don't fail the build
@@ -29,7 +29,7 @@ function createSuccessReporter() {
 /**
  * Create a stream that swallows errors instead of propagating them
  */
-function createIgnoreErrorsStream() {
+export function createIgnoreErrorsStream() {
 	return through(function (file) {
 		this.queue(file);
 	}, function () {
@@ -40,7 +40,7 @@ function createIgnoreErrorsStream() {
 /**
  * Patch the reporter system to always succeed, regardless of errors
  */
-function patchReporter(typescript) {
+export function patchReporter(typescript) {
 	if (!typescript) {
 		return;
 	}
@@ -53,9 +53,3 @@ function patchReporter(typescript) {
 		return createSuccessReporter();
 	};
 }
-
-module.exports = {
-	createSuccessReporter,
-	createIgnoreErrorsStream,
-	patchReporter
-};
