@@ -32,11 +32,12 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
+        shell: bash
         run: |
           # Set npm config to use GitHub token for authentication to avoid rate limits
-          npm config set //github.com/:_authToken=${{ github.token }}
-          npm config set //api.github.com/:_authToken=${{ github.token }}
-          npm config set //npm.pkg.github.com/:_authToken=${{ github.token }}
+          npm config set "//github.com/:_authToken=${{ github.token }}"
+          npm config set "//api.github.com/:_authToken=${{ github.token }}"
+          npm config set "//npm.pkg.github.com/:_authToken=${{ github.token }}"
           # Configure npm to use the GitHub token for all requests to github.com domains
           npm config set @microsoft:registry https://npm.pkg.github.com
           npm config set @vscode:registry https://npm.pkg.github.com
@@ -103,11 +104,12 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
+        shell: bash
         run: |
           # Set npm config to use GitHub token for authentication to avoid rate limits
-          npm config set //github.com/:_authToken=${{ github.token }}
-          npm config set //api.github.com/:_authToken=${{ github.token }}
-          npm config set //npm.pkg.github.com/:_authToken=${{ github.token }}
+          npm config set "//github.com/:_authToken=${{ github.token }}"
+          npm config set "//api.github.com/:_authToken=${{ github.token }}"
+          npm config set "//npm.pkg.github.com/:_authToken=${{ github.token }}"
           # Configure npm to use the GitHub token for all requests to github.com domains
           npm config set @microsoft:registry https://npm.pkg.github.com
           npm config set @vscode:registry https://npm.pkg.github.com
